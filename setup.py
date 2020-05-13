@@ -27,6 +27,8 @@ INSTALL_REQUIRES = [
     'flask == 1.1.2',
     'Flask-Negotiate == 0.1.0',
     'lxml == 3.7.3',
+    'importlib_resources',
+    'flask-debugtoolbar',
 ]
 
 SETUP_REQUIRES = [
@@ -35,7 +37,6 @@ SETUP_REQUIRES = [
 
 TEST_REQUIRES = [
     'pytest',
-    'flask-debugtoolbar',
 ]
 
 with open('README.md', 'r') as README:
