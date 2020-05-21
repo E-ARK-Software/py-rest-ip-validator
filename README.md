@@ -28,6 +28,7 @@ Next set the environment variable for the Flask web app:
 
     export FLASK_APP='ip_validation'
     export EARK_PYIP_CONF_FILE='<pathtoproject>/conf/example.conf'
+
 **NOTE** *these will need to be set for every new session for now*.
 
 Finally install and run the  Flask application:
