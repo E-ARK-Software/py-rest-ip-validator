@@ -139,10 +139,16 @@ class ValidationRulesTest(unittest.TestCase):
         self.assertTrue(warnings == 0)
         self.assertTrue(result)
 
-    def test_mets_amd(self):
+    def test_mets_file(self):
         result, failures, warnings = _test_validation('file', 'METS-valid.xml')
         self.assertTrue(failures == 0)
         self.assertTrue(warnings == 0)
+        self.assertTrue(result)
+
+    def test_mets_structmap(self):
+        result, failures, warnings = _test_validation('structmap', 'METS-valid.xml')
+        self.assertTrue(failures == 0)
+        self.assertTrue(warnings == 1)
         self.assertTrue(result)
 
 def _test_validation(name, to_validate):
