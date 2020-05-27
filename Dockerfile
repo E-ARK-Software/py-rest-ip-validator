@@ -13,7 +13,7 @@ COPY requirements.txt requirements.txt
 COPY README.md README.md
 COPY ip_validation/* ip_validation/
 
-RUN mkdir /install && pip install -U pip && pip install -r requirements.txt --prefix=/install && pip install git+https://github.com/E-ARK-Software/eatb.git@refact/tests_and_resources --prefix=/install && pip install --prefix=/install .
+RUN mkdir /install && pip install -U pip && pip install -r requirements.txt --prefix=/install && pip install --prefix=/install .
 
 FROM python:3.6-alpine
 
