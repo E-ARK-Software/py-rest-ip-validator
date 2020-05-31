@@ -2,46 +2,90 @@ E-ARK Python IP Validator
 =========================
 *Web front end for E-ARK Information Package validation.*
 
-[![Build Status](https://travis-ci.org/carlwilson/eark-py-ip-validator.svg?branch=integration)](https://travis-ci.org/carlwilson/eark-py-ip-validator "Travis-CI integration build")
-[![CodeCov Coverage](https://img.shields.io/codecov/c/github/carlwilson/eark-py-ip-validator.svg)](https://codecov.io/gh/carlwilson/eark-py-ip-validator/ "CodeCov test coverage figure")
-[![Codacy Badge](https://api.codacy.com/project/badge/Coverage/ab34b42c50954e4192987e060321ea17)](https://www.codacy.com/app/openpreserve/eark-py-ip-validator?utm_source=github.com&utm_medium=referral&utm_content=carlwilson/eark-py-ip-validator&utm_campaign=Badge_Coverage)
-[![GitHub issues](https://img.shields.io/github/issues/carlwilson/eark-py-ip-validator.svg)](https://github.com/carlwilson/eark-py-ip-validator/issues "Open issues on GitHub")
-
-Description
------------
-The `eark-py-ip-validator` project provides a set of Python tools that
+[![Build Status](https://travis-ci.org/E-ARK-Software/py-rest-ip-validator.svg?branch=integration)](https://travis-ci.org/E-ARK-Software/py-rest-ip-validator "Travis-CI integration build")
+[![CodeCov Coverage](https://img.shields.io/codecov/c/github/E-ARK-Software/py-rest-ip-validator.svg)](https://codecov.io/gh/E-ARK-Software/py-rest-ip-validator/ "CodeCov test coverage figure")
+[![Codacy Badge](https://api.codacy.com/project/badge/Coverage/ab34b42c50954e4192987e060321ea17)](https://www.codacy.com/app/openpreserve/py-rest-ip-validator?utm_source=github.com&utm_medium=referral&utm_content=E-ARK-Software/py-rest-ip-validator&utm_campaign=Badge_Coverage)
+[![GitHub issues](https://img.shields.io/github/issues/E-ARK-Software/py-rest-ip-validator.svg)](https://github.com/E-ARK-Software/py-rest-ip-validator/issues "Open issues on GitHub")
 
 Quick Start
 -----------
 ### Pre-requisites
-- Python 3.5+
+Python 3.5+ OR [Docker](https://www.docker.com/).
 
-### Dependencies
+### Getting the code
+Clone the project move into the directory:
+
+```shell
+git clone https://github.com/E-ARK-Software/py-rest-ip-validator.git
+cd py-rest-ip-validator
+```
 
 ### Installation
+
 #### Local virtual env setup
 First set up a local virtual environment, this example assumes you'll do this in the project root directory on a linux box or Mac:
 
-    virtualenv -p python3 venv
-    source venv/bin/activate
+```shell
+virtualenv -p python3 venv
+source venv/bin/activate
+```
+
 Next set the environment variable for the Flask web app:
 
-    export FLASK_APP='ip_validation'
-    export EARK_PYIP_CONF_FILE='<pathtoproject>/conf/example.conf'
+```shell
+export FLASK_APP='ip_validation'
+export EARK_PYIP_CONF_FILE='<pathtoproject>/conf/example.conf'
+```
 
 **NOTE** *these will need to be set for every new session for now*.
 
 Finally install and run the  Flask application:
 
-    pip install -e .
-    flask run --port=8080
-    The open your browser and navigate to http://localhost:8080
+```shell
+pip install -e .
+flask run --port=5000
+```
+
+Then open your browser and navigate to http://localhost:5000
+
+#### Local Docker instance
+
+The `Dockerfile.dev` file in the project root is the easiest way to run the project if you use [Docker](https://www.docker.com/).
+
+First you'll need to build a local instance the development Docker image:
+
+```shell
+docker build --tag=eark4all/py-ip-validator:dev -f Dockerfile.dev .
+```
+
+You then need to run a container instance, here's the command followed by a quick explanation:
+
+```shell
+docker run -p 5000:5000 -u $(id -u) -v "$PWD":/app -v /tmp:/tmp --detach --rm --name py-ip-dev eark4all/py-ip-validator:dev
+```
+
+Here's the options explained:
+```
+  -p 5000:5000      Map port 5000 from the host to the container
+  -v "$PWD":/app    Map the host current directory to the container /app directory
+  -v /tmp:/tmp      Map temp on the host to the container temp directory
+  --detach          Detach from terminal session
+  --rm              Remove container instance
+  --name py-ip-dev  Give the container a name
+```
+
+Again open your browser and navigate to http://localhost:5000. You can work on the code and issue the command:
+
+```shell
+docker restart py-ip-dev
+```
 
 ### Configuration
 The application has built in application profiles that can be augmented and over-ridden by a user configuration file.
 
 Development
 -----------
+
 ### Python development utilities
 These are useful for ensuring your code follows best practise and establishing whether it's tested.
 
