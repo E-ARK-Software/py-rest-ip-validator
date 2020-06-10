@@ -22,6 +22,7 @@
 # specific language governing permissions and limitations
 # under the License.
 #
+"""Module covering tests for package structure errors."""
 import os
 import unittest
 
@@ -33,6 +34,64 @@ class StructValidationTests(unittest.TestCase):
     """Unit tests covering structural validation of information packages, spcifically
     unpacking archived packages and establishing that the files and folders specified
     if the CSIP are present."""
+
+    def test_check_package_root_single(self):
+        """Dedicated test for package root detection errors."""
+        ip_path = os.path.join(os.path.dirname(__file__), 'resources', 'ips', 'unpacked',
+                               'single_file')
+        details = IP.check_package_root(ip_path)
+        self.assertTrue(details.package_status == IP.PackageStatus.NotWellFormed,
+                        'Expecting status NotWellFormed, not {}'.format(details.package_status))
+        val_errors = details.errors
+        self.assertTrue(len(val_errors) == 1,
+                        'Expecting 1 errors but found {}'.format(len(val_errors)))
+        self.assertTrue(contains_rule_id(val_errors, "CSIPSTR1",
+                                         severity=Severity.Error))
+
+    def test_check_package_root_multi_dir(self):
+        """Dedicated test for package root detection errors."""
+        ip_path = os.path.join(os.path.dirname(__file__), 'resources', 'ips', 'unpacked',
+                               'multi_dir')
+        details = IP.check_package_root(ip_path)
+        self.assertTrue(details.package_status == IP.PackageStatus.NotWellFormed,
+                        'Expecting status NotWellFormed, not {}'.format(details.package_status))
+        val_errors = details.errors
+        self.assertTrue(len(val_errors) == 1,
+                        'Expecting 1 errors but found {}'.format(len(val_errors)))
+        self.assertTrue(contains_rule_id(val_errors, "CSIPSTR1",
+                                         severity=Severity.Error))
+
+    def test_check_package_root_multi_file(self):
+        """Dedicated test for package root detection errors."""
+        ip_path = os.path.join(os.path.dirname(__file__), 'resources', 'ips', 'unpacked',
+                               'multi_file')
+        details = IP.check_package_root(ip_path)
+        self.assertTrue(details.package_status == IP.PackageStatus.NotWellFormed,
+                        'Expecting status NotWellFormed, not {}'.format(details.package_status))
+        val_errors = details.errors
+        self.assertTrue(len(val_errors) == 1,
+                        'Expecting 1 errors but found {}'.format(len(val_errors)))
+        self.assertTrue(contains_rule_id(val_errors, "CSIPSTR1",
+                                         severity=Severity.Error))
+
+    def test_check_package_root_multi_var(self):
+        """Dedicated test for package root detection errors."""
+        ip_path = os.path.join(os.path.dirname(__file__), 'resources', 'ips', 'unpacked',
+                               'multi_var')
+        details = IP.check_package_root(ip_path)
+        self.assertTrue(details.package_status == IP.PackageStatus.NotWellFormed,
+                        'Expecting status NotWellFormed, not {}'.format(details.package_status))
+        val_errors = details.errors
+        self.assertTrue(len(val_errors) == 1,
+                        'Expecting 1 errors but found {}'.format(len(val_errors)))
+        self.assertTrue(contains_rule_id(val_errors, "CSIPSTR1",
+                                         severity=Severity.Error))
+
+    def test_single_file_archive(self):
+        """Test a package that's just a compressed single file."""
+        ip_path = os.path.join(os.path.dirname(__file__), 'resources', 'ips', 'struct',
+                               'empty.zip')
+        details = IP.validate_package_structure(ip_path)
 
     def test_minimal(self):
         """Test minimal IP with schemas, the basic no errors but with warnings package."""
@@ -53,7 +112,7 @@ class StructValidationTests(unittest.TestCase):
 
     def test_nomets(self):
         """Test package with no METS.xml file"""
-        ip_path = os.path.join(os.path.dirname(__file__), 'resources',  'ips', 'struct',
+        ip_path = os.path.join(os.path.dirname(__file__), 'resources', 'ips', 'struct',
                                'no_mets.tar.gz')
         details = IP.validate_package_structure(ip_path)
         self.assertTrue(details.package_status == IP.PackageStatus.NotWellFormed,
