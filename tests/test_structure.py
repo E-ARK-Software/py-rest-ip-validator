@@ -35,8 +35,8 @@ class StructValidationTests(unittest.TestCase):
     if the CSIP are present."""
 
     def test_minimal(self):
-        # test as root
-        ip_path = os.path.join(os.path.dirname(__file__), 'resources',
+        """Test minimal IP with schemas, the basic no errors but with warnings package."""
+        ip_path = os.path.join(os.path.dirname(__file__), 'resources', 'ips', 'minimal',
                                'minimal_IP_with_schemas.zip')
         details = IP.validate_package_structure(ip_path)
         self.assertTrue(details.package_status == IP.PackageStatus.WellFormed,
@@ -52,8 +52,9 @@ class StructValidationTests(unittest.TestCase):
                                          severity=Severity.Warn))
 
     def test_nomets(self):
-        # test as root
-        ip_path = os.path.join(os.path.dirname(__file__), 'resources', 'no_mets.tar.gz')
+        """Test package with no METS.xml file"""
+        ip_path = os.path.join(os.path.dirname(__file__), 'resources',  'ips', 'struct',
+                               'no_mets.tar.gz')
         details = IP.validate_package_structure(ip_path)
         self.assertTrue(details.package_status == IP.PackageStatus.NotWellFormed,
                         'Expecting status NotWellFormed, not {}'.format(details.package_status))
@@ -70,7 +71,8 @@ class StructValidationTests(unittest.TestCase):
 
     def test_nomd(self):
         # test as root
-        ip_path = os.path.join(os.path.dirname(__file__), 'resources', 'no_md.tar.gz')
+        ip_path = os.path.join(os.path.dirname(__file__), 'resources', 'ips', 'struct',
+                               'no_md.tar.gz')
         details = IP.validate_package_structure(ip_path)
         self.assertTrue(details.package_status == IP.PackageStatus.WellFormed,
                         'Expecting status WellFormed, not {}'.format(details.package_status))
@@ -88,7 +90,8 @@ class StructValidationTests(unittest.TestCase):
 
     def test_noschema(self):
         # test as root
-        ip_path = os.path.join(os.path.dirname(__file__), 'resources', 'no_schemas.tar.gz')
+        ip_path = os.path.join(os.path.dirname(__file__), 'resources', 'ips', 'struct',
+                               'no_schemas.tar.gz')
         details = IP.validate_package_structure(ip_path)
         self.assertTrue(details.package_status == IP.PackageStatus.WellFormed,
                         'Expecting status WellFormed, not {}'.format(details.package_status))
@@ -106,7 +109,8 @@ class StructValidationTests(unittest.TestCase):
 
     def test_nodata(self):
         # test as root
-        ip_path = os.path.join(os.path.dirname(__file__), 'resources', 'no_data.tar.gz')
+        ip_path = os.path.join(os.path.dirname(__file__), 'resources', 'ips', 'struct',
+                               'no_data.tar.gz')
         details = IP.validate_package_structure(ip_path)
         self.assertTrue(details.package_status == IP.PackageStatus.WellFormed,
                         'Expecting status WellFormed, not {}'.format(details.package_status))
@@ -123,7 +127,8 @@ class StructValidationTests(unittest.TestCase):
                                          severity=Severity.Warn))
 
     def test_noreps(self):
-        ip_path = os.path.join(os.path.dirname(__file__), 'resources', 'no_reps.tar.gz')
+        ip_path = os.path.join(os.path.dirname(__file__), 'resources', 'ips', 'struct',
+                               'no_reps.tar.gz')
         details = IP.validate_package_structure(ip_path)
         self.assertTrue(details.package_status == IP.PackageStatus.WellFormed,
                         'Expecting status WellFormed, not {}'.format(details.package_status))

@@ -55,11 +55,11 @@ class StatusValuesTest(unittest.TestCase):
 
 class ArchiveHandlerTest(unittest.TestCase):
     empty_path = os.path.join(os.path.dirname(__file__), 'resources', 'empty.file')
-    min_tar_path = os.path.join(os.path.dirname(__file__), 'resources',
+    min_tar_path = os.path.join(os.path.dirname(__file__), 'resources', 'ips', 'minimal',
                                 'minimal_IP_with_schemas.tar')
-    min_zip_path = os.path.join(os.path.dirname(__file__), 'resources',
+    min_zip_path = os.path.join(os.path.dirname(__file__), 'resources', 'ips', 'minimal',
                                 'minimal_IP_with_schemas.zip')
-    min_targz_path = os.path.join(os.path.dirname(__file__), 'resources',
+    min_targz_path = os.path.join(os.path.dirname(__file__), 'resources', 'ips', 'minimal',
                                   'minimal_IP_with_schemas.tar.gz')
 
     def test_sha1(self):
