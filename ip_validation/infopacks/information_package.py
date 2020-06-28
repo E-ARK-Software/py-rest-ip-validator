@@ -24,7 +24,6 @@
 #
 """Module covering information package structure validation and navigation."""
 from enum import Enum, unique
-import hashlib
 import os
 import tarfile
 import tempfile
@@ -32,8 +31,7 @@ import zipfile
 
 from ip_validation.infopacks.struct_errors import StructError
 from ip_validation.infopacks.rules import Severity
-
-BUFF_SIZE = 1024 * 64
+from ip_validation.infopacks.manifests import Digest
 
 @unique
 class PackageStatus(Enum):
@@ -63,8 +61,6 @@ class ManifestStatus(Enum):
 
 class PackageDetails:
     """Stores the vital facts and figures about a package."""
-    package_values = list(PackageStatus)
-    manifest_values = list(ManifestStatus)
     def __init__(self, path, size=0, version='unknown',
                  package_status=PackageStatus.Unknown,
                  manifest_status=ManifestStatus.Unknown):
@@ -102,7 +98,7 @@ class PackageDetails:
 
     @package_status.setter
     def package_status(self, value):
-        if not value in self.package_values:
+        if not value in list(PackageStatus):
             raise ValueError("Illegal package status value")
         self._package_status = value
 
@@ -113,7 +109,7 @@ class PackageDetails:
 
     @manifest_status.setter
     def manifest_status(self, value):
-        if not value in self.manifest_values:
+        if not value in list(ManifestStatus):
             raise ValueError("Illegal manifest status value")
         self._manifest_status = value
 
@@ -133,6 +129,62 @@ class PackageDetails:
         """Return the full list of errors."""
         return self._errors
 
+class IPUnit():
+    """Basic information package unit."""
+    def __init__(self, root, name, mets=None):
+        self._root = root
+        self._name = name
+        self._mets = mets
+
+    @property
+    def name(self):
+        """Get the name of the unit."""
+        return os.path.basename(os.path.normpath(self.root))
+
+    @property
+    def root(self):
+        """Get the root directory of the unit."""
+        return self._root
+
+    @property
+    def mets(self):
+        """Get the units mets file, returns None if no file."""
+        return self._mets
+
+class Represenation():
+    """Models a representation element of an information package."""
+    def __init__(self, ip_unit):
+        self._ip_unit = ip_unit
+
+    @property
+    def name(self):
+        """Get the name of the unit."""
+        return self._ip_unit.name
+
+    @property
+    def root(self):
+        """Get the root directory of the unit."""
+        return self._ip_unit.root
+
+    @property
+    def mets(self):
+        """Get the units mets file, returns None if no file."""
+        return self._ip_unit.mets
+
+    @property
+    def metadata(self):
+        """Get the units metadata folder, returns None if no file."""
+        if os.path.isdir(os.path.join(self.root, 'metadata')):
+            return os.path.join(self.root, 'metadata')
+        return None
+
+    @property
+    def data(self):
+        """Get the units data folder, returns None if no file."""
+        if os.path.isdir(os.path.join(self.root, 'data')):
+            return os.path.join(self.root, 'data')
+        return None
+
 class ArchivePackageHandler():
     """Class to handle archive / compressed information packages."""
     def __init__(self, unpack_root=tempfile.gettempdir()):
@@ -150,25 +202,13 @@ class ArchivePackageHandler():
             return True
         return tarfile.is_tarfile(to_test)
 
-    @staticmethod
-    def calc_sha1(to_hash):
-        """Calculate and return the hex SHA1 value of the file path to_hash."""
-        sha1 = hashlib.sha1()
-        with open(to_hash, 'rb') as source:
-            while True:
-                data = source.read(BUFF_SIZE)
-                if not data:
-                    break
-                sha1.update(data)
-        return sha1.hexdigest()
-
     def unpack_package(self, to_unpack, dest=None):
         """Unpack an archived package to a destination (defaults to tempdir)."""
         if not os.path.isfile(to_unpack) or not self.is_archive(to_unpack):
             raise PackageStructError("File is not an archive file.")
-        sha1 = ArchivePackageHandler.calc_sha1(to_unpack)
+        sha1 = Digest.sha1(to_unpack)
         dest_root = dest if dest else self.unpack_root
-        destination = os.path.join(dest_root, sha1)
+        destination = os.path.join(dest_root, sha1.value)
         if zipfile.is_zipfile(to_unpack):
             zip_ip = zipfile.ZipFile(to_unpack)
             zip_ip.extractall(path=destination)
