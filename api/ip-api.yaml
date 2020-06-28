@@ -1,4 +1,4 @@
-openapi: 3.0.0
+openapi: 3.0.1
 info:
   title: E-ARK IP Validation API
   description: REST API definition for [E-ARK information package validation](https://earkcsip.dilcis.eu/).
@@ -13,7 +13,7 @@ tags:
   - name: /ips
     description: Requests for E-ARK information packages
   - name: /ips-manifests
-    description: Requests for E-ARK information package mnifest details
+    description: Requests for E-ARK information package manifest details
   - name: /profiles
     description: Requests for E-ARK IP validation profiles
   - name: /validations
@@ -24,96 +24,168 @@ paths:
       tags:
         - /ips
       description: Retrieve a list of package binaries uploaded to the validation service.
-      consumes: []
+      summary: Retrieve package binaries.
+      operationId: getIps
       parameters: []
-      produces:
-        - application/json;charset=UTF-8
-        - application/xml;charset=UTF-8
       responses:
         '200':
           description: A list of package binaries
           content:
-            'application/json': {}
-            'application/xml': {}
-          examples:
-            application/json;charset=UTF-8: |-
-              [
-                {
-                    “uid”: “845872bf-cbf8-48e6-b495-ec6b4a63b607”,
-                    “name”: “IP.100.XYZ”,
-                },
-                {
-                    “uid”: “845872bf-cbf8-48e6-b495-ec6b4a63b609”,
-                    “name”: “IP.101.XYZ”,
-                }
-              ]
-      schema:
-        $ref: '#definitions/PackageDetails'
+            application/json:
+              examples:
+                packageList:
+                  value: |-
+                    [
+                      {
+                          “uid”: “845872bf-cbf8-48e6-b495-ec6b4a63b607”,
+                          “name”: “IP.100.XYZ”,
+                      },
+                      {
+                          “uid”: “845872bf-cbf8-48e6-b495-ec6b4a63b609”,
+                          “name”: “IP.101.XYZ”,
+                      }
+                    ]
     post:
       tags:
         - /ips
       description: Upload a package binary for validation, returns process identifier and digest.
-      consumes:
-        - multipart/form-data
-      produces:
-        - application/json;charset=UTF-8
-        - application/xml;charset=UTF-8
-      parameters:
-        - name: Authorization
-          in: header
-          description: HTTP Basic Auth header
-          required: true
-          type: string
-        - name: package
-          in: formData
-          description: Archived package binary
-          required: true
-          type: file
+      summary: Upload package binary.
+      operationId: postIp
+      parameters: []
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                sha1:
+                  type: string
+                fileName:
+                  type: string
+                  format: binary
       responses:
         '201':
-          description: Success
-          examples:
-            application/json;charset=UTF-8: |-
-              {
-                “uid”: “845872bf-cbf8-48e6-b495-ec6b4a63b607”,
-                “name”: “IP.100.XYZ”,
-                “checksums”: [
-                  {
-                    “algorithm”: “sha256”,
-                    “value”: “e3b0c44298fc1c149afbf4...”
-                  },
-                  {
-                    “algorithm”: “md5”,
-                    “value”: “e3b0c44298fc1c149afbf4...”
-                  }
-                ]
-              }
-          schema:
-            $ref: '#/definitions/PackageDetails'
-        '401':
-          description: If no Authorization header has been supplied
-        '403':
-          description: If the supplied Authorization header does not reference a user with write access.
+          description: Package successfully uploaded and queued for validation
+          content:
+            application/json:
+              examples:
+                packageDetails:
+                  value: |-
+                    {
+                      “uid”: “845872bf-cbf8-48e6-b495-ec6b4a63b607”,
+                      “name”: “IP.100.XYZ”,
+                      “checksums”: [
+                        {
+                         “algorithm”: “sha256”,
+                         “value”: “e3b0c44298fc1c149afbf4...”
+                        },
+                        {
+                         “algorithm”: “md5”,
+                         “value”: “e3b0c44298fc1c149afbf4...”
+                        }
+                      ]
+                    }
     delete:
       tags:
         - /ips
-      description: Delete all information packages for authorised user.
-      consumes: []
-      produces:
-        - application/json;charset=UTF-8
-        - application/xml;charset=UTF-8
+      description: Delete all information package binaries for this user.
+      summary: Delete information packages.
+      operationId: deleteIp
+      parameters: []
+      responses:
+        '202':
+           description: All information package binaries deleted for this user
+           content:
+             application/json:
+               examples:
+                packageList:
+                  value: |-
+                    [
+                      {
+                          “uid”: “845872bf-cbf8-48e6-b495-ec6b4a63b607”,
+                          “name”: “IP.100.XYZ”,
+                      },
+                      {
+                          “uid”: “845872bf-cbf8-48e6-b495-ec6b4a63b609”,
+                          “name”: “IP.101.XYZ”,
+                      }
+                    ]
+  /ips/{packageId}:
+    get:
+      tags:
+        - /ips
+      description: Get the properties of an information package id.
+      summary: Get package info.
+      operationId: getIpById
       parameters:
-        - name: Authorization
-          in: header
-          description: HTTP Basic Auth header
+        - in: path
+          name: packageId
+          description: UUID of the package to retrieve
           required: true
-          type: string
-     responses:
-        '204':
-          description: Package binaries successfully deleted.
           schema:
-            $ref: '#/definitions/PackageDetails'
-        '401':
-          description: If no Authorization header has been supplied.
-        '403':
-          description: If the supplied Authorization header does not reference a user with write access.
+            type: string
+      responses:
+        '200':
+          description: Full set of package properties
+          content:
+            application/json:
+              examples:
+                package:
+                  value: |-
+                    {
+                      “uid”: “845872bf-cbf8-48e6-b495-ec6b4a63b609”,
+                      “name”: “IP.101.XYZ”,
+                    }
+    delete:
+      tags:
+        - /ips
+      description: Delete information package binary by id.
+      summary: Delete IP by id.
+      operationId: deleteIpById
+      parameters:
+        - in: path
+          name: packageId
+          description: UUID of the package to delete
+          required: true
+          schema:
+            type: string
+      responses:
+        '201':
+           description: Package deleted
+           content:
+             application/json:
+               examples:
+                packageList:
+                  value: |-
+                    {
+                      “uid”: “845872bf-cbf8-48e6-b495-ec6b4a63b609”,
+                      “name”: “IP.101.XYZ”,
+                    }
+components:
+  schemas:
+    packageDetails:
+      type: object
+      properties:
+        id:
+          type: string
+          nullable: false
+        name:
+          type: string
+          nullable: false
+    testResult:
+      type: object
+      properties:
+        ruleId:
+          type: string
+          nullable: false
+        location:
+          type: string
+          nullable: false
+        message:
+          type: string
+        severity:
+          type: string
+          enum:
+            - Info
+            - Warn
+            - Error
