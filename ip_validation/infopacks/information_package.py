@@ -25,14 +25,11 @@
 """Module covering information package structure validation and navigation."""
 from enum import Enum, unique
 import os
-import tarfile
-import tempfile
-import zipfile
 
-from ip_validation.infopacks.struct_errors import StructError
+from ip_validation.infopacks.archives import ArchivePackageHandler
+from ip_validation.infopacks.exceps import PackageStructError
 from ip_validation.infopacks.rules import Severity
-from ip_validation.infopacks.manifests import Digest
-
+from ip_validation.infopacks.struct_errors import StructError
 @unique
 class PackageStatus(Enum):
     """Enum covering information package validation statuses."""
@@ -184,38 +181,6 @@ class Represenation():
         if os.path.isdir(os.path.join(self.root, 'data')):
             return os.path.join(self.root, 'data')
         return None
-
-class ArchivePackageHandler():
-    """Class to handle archive / compressed information packages."""
-    def __init__(self, unpack_root=tempfile.gettempdir()):
-        self._unpack_root = unpack_root
-
-    @property
-    def unpack_root(self):
-        """Returns the root directory for archive unpacking."""
-        return self._unpack_root
-
-    @staticmethod
-    def is_archive(to_test):
-        """Return True if the file is a recognised archive type, False otherwise."""
-        if zipfile.is_zipfile(to_test):
-            return True
-        return tarfile.is_tarfile(to_test)
-
-    def unpack_package(self, to_unpack, dest=None):
-        """Unpack an archived package to a destination (defaults to tempdir)."""
-        if not os.path.isfile(to_unpack) or not self.is_archive(to_unpack):
-            raise PackageStructError("File is not an archive file.")
-        sha1 = Digest.sha1(to_unpack)
-        dest_root = dest if dest else self.unpack_root
-        destination = os.path.join(dest_root, sha1.value)
-        if zipfile.is_zipfile(to_unpack):
-            zip_ip = zipfile.ZipFile(to_unpack)
-            zip_ip.extractall(path=destination)
-        elif tarfile.is_tarfile(to_unpack):
-            tar_ip = tarfile.open(to_unpack)
-            tar_ip.extractall(path=destination)
-        return destination
 
 METS_NAME = 'METS.xml'
 REPS_DIR = "representations"
@@ -372,9 +337,3 @@ class PackageManifest():
                 elif entry == REPS_DIR:
                     has_reps = True
         return PackageManifest(name, has_mets, has_md, has_schema, has_data, has_reps)
-
-class PackageStructError(RuntimeError):
-    """Exception to signal fatal pacakge structure errors."""
-    def __init__(self, arg):
-        super(PackageStructError, self).__init__()
-        self.args = arg
