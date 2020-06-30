@@ -128,10 +128,15 @@ class PackageDetails:
 
 class IPUnit():
     """Basic information package unit."""
-    def __init__(self, root, name, mets=None):
+    METS = 'METS.xml'
+    DATA = 'data'
+    DOCUMENTATION = 'documentation'
+    METADATA = 'metadata'
+    REPRESENTATIONS = "representations"
+    SCHEMAS = "schemas"
+    def __init__(self, root, name):
         self._root = root
         self._name = name
-        self._mets = mets
 
     @property
     def name(self):
@@ -145,10 +150,63 @@ class IPUnit():
 
     @property
     def mets(self):
-        """Get the units mets file, returns None if no file."""
-        return self._mets
+        """Get the METS file for the Unit or None if no METS file."""
+        if self.has_mets():
+            return os.path.join(self._root, self.METS)
+        return None
 
-class Represenation():
+    def has_mets(self):
+        """Get the units mets file, returns None if no file."""
+        return os.path.isfile(os.path.join(self._root, self.METS))
+
+    @property
+    def metadata(self):
+        """Get the units metadata folder, returns None if no file."""
+        return self.get_subdir(IPUnit.METADATA)
+
+    @property
+    def data(self):
+        """Get the units data folder, returns None if no file."""
+        return self.get_subdir(IPUnit.DATA)
+
+    @property
+    def schemas(self):
+        """Get the units schemas folder, returns None if no file."""
+        return self.get_subdir(IPUnit.SCHEMAS)
+
+    @property
+    def documentation(self):
+        """Get the units schemas folder, returns None if no file."""
+        return self.get_subdir(IPUnit.DOCUMENTATION)
+
+    @property
+    def representations(self):
+        """Get the units representations folder, returns None if no file."""
+        return self.get_subdir(IPUnit.REPRESENTATIONS)
+
+    def get_subdir(self, name):
+        """Checks if IP has a subdir and returns it if it exists, else returns None."""
+        if self.has_subdir(name):
+            return self._join_subdir(name)
+        return None
+
+    def has_subdir(self, name):
+        """Returns true if this IP Unit has a subdirectory of the passed name."""
+        if name is None or len(name) < 1:
+            raise ValueError("Subdirectory name must be a String of length > 0")
+        return os.path.isdir(self._join_subdir(name))
+
+    def get_subdirs(self):
+        """Generator that yields a directory name and full path tuple for each file in a directory."""
+        for entry in os.listdir(self.root):
+            full_path = os.path.join(self.root, entry)
+            if os.path.isdir(full_path):
+                yield entry, full_path
+
+    def _join_subdir(self, name):
+        return os.path.join(self.root, name)
+
+class Representation():
     """Models a representation element of an information package."""
     def __init__(self, ip_unit):
         self._ip_unit = ip_unit
@@ -171,19 +229,79 @@ class Represenation():
     @property
     def metadata(self):
         """Get the units metadata folder, returns None if no file."""
-        if os.path.isdir(os.path.join(self.root, 'metadata')):
-            return os.path.join(self.root, 'metadata')
-        return None
+        return self._ip_unit.metadata
 
     @property
     def data(self):
         """Get the units data folder, returns None if no file."""
-        if os.path.isdir(os.path.join(self.root, 'data')):
-            return os.path.join(self.root, 'data')
-        return None
+        return self._ip_unit.data
 
-METS_NAME = 'METS.xml'
-REPS_DIR = "representations"
+    @property
+    def schemas(self):
+        """Get the units schemas folder, returns None if no file."""
+        return self._ip_unit.schemas
+
+    @property
+    def documentation(self):
+        """Get the units documentation folder, returns None if no file."""
+        return self._ip_unit.documentation
+
+class InformationPackage():
+    def __init__(self, ip_unit, representations=None):
+        self._ip_unit = ip_unit
+        if representations is None:
+            self._reps = []
+        else:
+            self._reps = representations
+
+    @property
+    def name(self):
+        """Get the name of the unit."""
+        return self._ip_unit.name
+
+    @property
+    def root(self):
+        """Get the root directory of the unit."""
+        return self._ip_unit.root
+
+    @property
+    def mets(self):
+        """Get the units mets file, returns None if no file."""
+        return self._ip_unit.mets
+
+    @property
+    def representations(self):
+        """Get the units representations folder, returns None if no file."""
+        return self._ip_unit.representations
+
+    def get_representations(self):
+        if self.representations is None:
+            return
+        for entry in os.listdir(self.representations):
+            full_path = os.path.join(self.representations, entry)
+            if os.path.isdir(full_path):
+                yield entry, full_path
+
+    @property
+    def metadata(self):
+        """Get the units metadata folder, returns None if no file."""
+        return self._ip_unit.metadata
+
+    @property
+    def data(self):
+        """Get the units data folder, returns None if no file."""
+        return self._ip_unit.data
+
+    @property
+    def schemas(self):
+        """Get the units schemas folder, returns None if no file."""
+        return self._ip_unit.schemas
+
+    @property
+    def documentation(self):
+        """Get the units documentation folder, returns None if no file."""
+        return self._ip_unit.documentation
+
 def validate_package_structure(package_path):
     """Carry out all structural package tests."""
     # It's a file so we need to unpack it
@@ -205,7 +323,7 @@ def validate_package_structure(package_path):
     # Now get the manifests directory
     root_manifest = PackageManifest.from_directory(details.path)
     # if we have manifests then we need the details from them also
-    rep_manifests = representation_manifests(os.path.join(details.path, REPS_DIR))
+    rep_manifests = representation_manifests(os.path.join(details.path, IPUnit.REPRESENTATIONS))
     root_errors = validate_manifest(root_manifest)
     rep_errors = []
     for manifest in rep_manifests.values():
@@ -315,25 +433,25 @@ class PackageManifest():
             entry_path = os.path.join(dir_to_scan, entry)
             # [CSIPSTR4] Is there a file called METS.xml (perform case checks)
             # [CSIPSTR12] Does each representation folder have a METS.xml file? (W)
-            if entry == METS_NAME:
+            if entry == IPUnit.METS:
                 if os.path.isfile(entry_path):
                     has_mets = True
                 else:
                     has_ghost_mets = True
-            elif entry.lower() == METS_NAME.lower():
+            elif entry.lower() == IPUnit.METS.lower():
                 has_ghost_mets = True
             # [CSIPSTR5] Is there a first level folder called metadata?
             # [CSIPSTR13] Does each representation folder have a metadata folder (W)
             if os.path.isdir(entry_path):
-                if entry == "metadata":
+                if entry == IPUnit.METADATA:
                     has_md = True
                 # [CSIPSTR15] Is there a schemas folder at the root level/representations? (W)
-                elif entry == "schemas":
+                elif entry == IPUnit.SCHEMAS:
                     has_schema = True
                 # [CSIPSTR11] Does each representation folder have a sub folder called data? (W)
-                elif entry == "data":
+                elif entry == IPUnit.DATA:
                     has_data = True
                 # [CSIPSTR9] Is there a first level folder called representations (W)
-                elif entry == REPS_DIR:
+                elif entry == IPUnit.REPRESENTATIONS:
                     has_reps = True
         return PackageManifest(name, has_mets, has_md, has_schema, has_data, has_reps)
