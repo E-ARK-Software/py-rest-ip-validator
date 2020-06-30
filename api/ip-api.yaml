@@ -1,4 +1,4 @@
-openapi: 3.0.1
+openapi: 3.0.3
 info:
   title: E-ARK IP Validation API
   description: REST API definition for [E-ARK information package validation](https://earkcsip.dilcis.eu/).
@@ -24,7 +24,7 @@ paths:
       tags:
         - /ips
       description: Retrieve a list of package binaries uploaded to the validation service.
-      summary: Retrieve package binaries.
+      summary: Retrieve package binary details.
       operationId: getIps
       parameters: []
       responses:
@@ -32,6 +32,10 @@ paths:
           description: A list of package binaries
           content:
             application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/packageId'
               examples:
                 packageList:
                   value: |-
@@ -68,6 +72,9 @@ paths:
           description: Package successfully uploaded and queued for validation
           content:
             application/json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/packageDetails'
               examples:
                 packageDetails:
                   value: |-
@@ -94,11 +101,15 @@ paths:
       parameters: []
       responses:
         '202':
-           description: All information package binaries deleted for this user
-           content:
-             application/json:
-               examples:
-                packageList:
+          description: All information package binaries deleted for this user
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/packageId'
+              examples:
+                packageIds:
                   value: |-
                     [
                       {
@@ -129,6 +140,9 @@ paths:
           description: Full set of package properties
           content:
             application/json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/informationPackage'
               examples:
                 package:
                   value: |-
@@ -154,8 +168,11 @@ paths:
            description: Package deleted
            content:
              application/json:
+               schema:
+                 type: object
+                 $ref: '#/components/schemas/packageId'
                examples:
-                packageList:
+                packageId:
                   value: |-
                     {
                       “uid”: “845872bf-cbf8-48e6-b495-ec6b4a63b609”,
@@ -163,13 +180,39 @@ paths:
                     }
 components:
   schemas:
+    packageId:
+      type: object
+      properties:
+        uid:
+          type: string
+          nullable: false
+          format: uuid
+        name:
+          type: string
+          nullable: false
     packageDetails:
       type: object
       properties:
         id:
+          type: object
+          $ref: '#/components/schemas/packageId'
+        checksums:
+          type: array
+          items:
+            $ref: '#/components/schemas/digest'
+    digest:
+      type: object
+      properties:
+        algorithm:
           type: string
           nullable: false
-        name:
+          default: SHA1
+          enum:
+            - MD5
+            - SHA1
+            - SHA256
+            - SHA512
+        value:
           type: string
           nullable: false
     testResult:
@@ -189,3 +232,49 @@ components:
             - Info
             - Warn
             - Error
+    profileDetails:
+      type: object
+      properties:
+        id:
+          type: string
+          enum:
+            - CSIP
+            - SIP
+            - DIP
+        name:
+          type: string
+          nullable: false
+        version:
+          type: string
+          nullable: false
+    informationPackage:
+      type: object
+      properties:
+        details:
+          type: object
+          $ref: '#/components/schemas/packageId'
+        profile:
+          type: object
+          $ref: '#/components/schemas/profileDetails'
+        representations:
+          type: object
+          $ref: '#/components/schemas/representation'
+    representation:
+      type: object
+      properties:
+        name:
+          type: string
+          nullable: false
+        parent:
+          type: object
+          $ref: '#/components/schemas/packageId'
+    validationReport:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          nullable: false
+        package:
+          type: object
+          $ref: '#/components/schemas/informationPackage'
