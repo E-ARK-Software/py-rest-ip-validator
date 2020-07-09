@@ -178,6 +178,81 @@ paths:
                       “uid”: “845872bf-cbf8-48e6-b495-ec6b4a63b609”,
                       “name”: “IP.101.XYZ”,
                     }
+  /profiles:
+    get:
+      tags:
+        - /profiles
+      description: Retrieve a list of supported validation profiles
+      summary: Retrieve validation profiles.
+      operationId: getProfiles
+      parameters: []
+      responses:
+        '200':
+          description: A list of validation profiles
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/profileDetails'
+              examples:
+                profileList:
+                  value: |-
+                    [
+                      {
+                          “type": “CSIP”,
+                          “name”: “E-ARK Common Specification for Information Packages.”,
+                          "version" : "2.0.4"
+                      },
+                      {
+                          “type": “SIP”,
+                          “name”: “E-ARK Specification for Submission Information Packages.”,
+                          "version" : "2.0.4"
+                      },
+                      {
+                          “type": “DIP”,
+                          “name”: “E-ARK Specification for Dissemination Information Packages.”,
+                          "version" : "2.0.4"
+                      }
+                    ]
+  /profiles/{type}/{version}:
+    get:
+      tags:
+        - /profiles
+      description: Retrieve a validation profile by type and version
+      summary: Retrieve a validation profile.
+      operationId: getProfile
+      parameters:
+        - in: path
+          name: type
+          description: The type of profile to retrieve
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: version
+          description: The version of profile to retrieve
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: A list validation profiles
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/profileDetails'
+              examples:
+                profile:
+                  value: |-
+                    [
+                      {
+                          “type": “CSIP”,
+                          “name”: “E-ARK Common Specification for Information Packages.”,
+                          "version" : "2.0.4"
+                      }
+                    ]
 components:
   schemas:
     upload:
