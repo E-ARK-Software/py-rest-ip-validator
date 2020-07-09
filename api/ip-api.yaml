@@ -35,7 +35,7 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/packageId'
+                  $ref: '#/components/schemas/upload'
               examples:
                 packageList:
                   value: |-
@@ -107,9 +107,9 @@ paths:
               schema:
                 type: array
                 items:
-                  $ref: '#/components/schemas/packageId'
+                  $ref: '#/components/schemas/upload'
               examples:
-                packageIds:
+                packageUids:
                   value: |-
                     [
                       {
@@ -121,16 +121,16 @@ paths:
                           “name”: “IP.101.XYZ”,
                       }
                     ]
-  /ips/{packageId}:
+  /ips/{packageUid}:
     get:
       tags:
         - /ips
-      description: Get the properties of an information package id.
+      description: Get the properties of an information package uid.
       summary: Get package info.
-      operationId: getIpById
+      operationId: getIpByUid
       parameters:
         - in: path
-          name: packageId
+          name: packageUid
           description: UUID of the package to retrieve
           required: true
           schema:
@@ -153,12 +153,12 @@ paths:
     delete:
       tags:
         - /ips
-      description: Delete information package binary by id.
-      summary: Delete IP by id.
-      operationId: deleteIpById
+      description: Delete information package binary by uid.
+      summary: Delete IP by uid.
+      operationId: deleteIpByUid
       parameters:
         - in: path
-          name: packageId
+          name: packageUid
           description: UUID of the package to delete
           required: true
           schema:
@@ -170,9 +170,9 @@ paths:
              application/json:
                schema:
                  type: object
-                 $ref: '#/components/schemas/packageId'
+                 $ref: '#/components/schemas/upload'
                examples:
-                packageId:
+                packageUid:
                   value: |-
                     {
                       “uid”: “845872bf-cbf8-48e6-b495-ec6b4a63b609”,
@@ -180,27 +180,35 @@ paths:
                     }
 components:
   schemas:
-    packageId:
+    upload:
       type: object
       properties:
         uid:
           type: string
           nullable: false
           format: uuid
-        name:
+        state:
           type: string
           nullable: false
+          default: UPLOADED
+          enum:
+            - UPLOADED
+            - CHECKSUMMED
+            - VALIDATED
+        details:
+          type: object
+          $ref: '#/components/schemas/packageDetails'
     packageDetails:
       type: object
       properties:
-        id:
-          type: object
-          $ref: '#/components/schemas/packageId'
+        name:
+          type: string
+          nullable: false
         checksums:
           type: array
           items:
-            $ref: '#/components/schemas/digest'
-    digest:
+            $ref: '#/components/schemas/checksum'
+    checksum:
       type: object
       properties:
         algorithm:
@@ -235,7 +243,7 @@ components:
     profileDetails:
       type: object
       properties:
-        id:
+        type:
           type: string
           enum:
             - CSIP
@@ -252,7 +260,7 @@ components:
       properties:
         details:
           type: object
-          $ref: '#/components/schemas/packageId'
+          $ref: '#/components/schemas/packageDetails'
         profile:
           type: object
           $ref: '#/components/schemas/profileDetails'
@@ -265,13 +273,10 @@ components:
         name:
           type: string
           nullable: false
-        parent:
-          type: object
-          $ref: '#/components/schemas/packageId'
     validationReport:
       type: object
       properties:
-        id:
+        uid:
           type: string
           format: uuid
           nullable: false
