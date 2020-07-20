@@ -121,7 +121,7 @@ paths:
                           “name”: “IP.101.XYZ”,
                       }
                     ]
-  /ips/{packageUid}:
+  /ips/{uid}:
     get:
       tags:
         - /ips
@@ -130,11 +130,12 @@ paths:
       operationId: getIpByUid
       parameters:
         - in: path
-          name: packageUid
+          name: uid
           description: UUID of the package to retrieve
           required: true
           schema:
             type: string
+            format: uuid
       responses:
         '200':
           description: Full set of package properties
@@ -158,11 +159,12 @@ paths:
       operationId: deleteIpByUid
       parameters:
         - in: path
-          name: packageUid
+          name: uid
           description: UUID of the package to delete
           required: true
           schema:
             type: string
+            format: uuid
       responses:
         '201':
            description: Package deleted
@@ -253,6 +255,104 @@ paths:
                           "version" : "2.0.4"
                       }
                     ]
+  /ips-manifests:
+    get:
+      tags:
+        - /ips-manifests
+      description: Retrieve a list of information package manifests from different sources
+      summary: Retrieve information package manifests
+      operationId: getManifests
+      responses:
+        '200':
+          description: A list of information package manifests
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ipManifest'
+                example: |-
+                  []
+    post:
+      tags:
+        - /ips-manifests
+      description: Upload an information package manifest for comparison or validation.
+      summary: Upload package manifest.
+      operationId: postManifest
+      parameters: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/manifest'
+      responses:
+        '201':
+          description: Manifest successfully uploaded.
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/manifestSummary'
+              examples:
+                manifestSummary:
+                  value: |-
+                    {
+                      “uid”: “845872bf-cbf8-48e6-b495-ec6b4a63b607”,
+                      "fileCount": 20,
+                      "totalSize": 200564,
+                    }
+    delete:
+      tags:
+        - /ips-manifests
+      description: Delete all information package manifest for this user.
+      summary: Delete IP manifests.
+      operationId: deleteIpManifests
+      parameters: []
+      responses:
+        '202':
+          description: All information package manifests deleted for this user
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ipManifest'
+              examples:
+                packageUids:
+                  value: |-
+                    [
+                      {
+                          “uid”: “845872bf-cbf8-48e6-b495-ec6b4a63b607”,
+                      },
+                      {
+                          “uid”: “845872bf-cbf8-48e6-b495-ec6b4a63b609”,
+                      }
+                    ]
+  /ips-manifests/{uid}:
+    get:
+      tags:
+        - /ips-manifests
+      description: Retrieve an information package manifest by uid
+      summary: Get IP by uid
+      operationId: getManifestByUid
+      parameters:
+        - in: path
+          name: uid
+          description: UID of the manifest to retrieve
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: An information package manifest
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/ipManifest'
 components:
   schemas:
     upload:
@@ -358,3 +458,52 @@ components:
         package:
           type: object
           $ref: '#/components/schemas/informationPackage'
+    manifestEntry:
+      type: object
+      properties:
+        path:
+          type: string
+          format: path
+          nullable: false
+        size:
+          type: integer
+          default: 0
+          nullable: false
+        checksums:
+          type: array
+          items:
+            $ref: '#/components/schemas/checksum'
+    manifestSummary:
+      type: object
+      properties:
+        fileCount:
+          type: integer
+          default: 0
+          nullable: false
+        totalSize:
+          type: integer
+          nullable: false
+    manifest:
+      type: object
+      properties:
+        source:
+          type: string
+          description: Some class to cover different types of manifest source (archive, filesystem, METS)
+          nullable: false
+        summary:
+          type: object
+          $ref: '#/components/schemas/manifestSummary'
+        entries:
+          type: array
+          items:
+            $ref: '#/components/schemas/manifestEntry'
+    ipManifest:
+      type: object
+      properties:
+        uid:
+          type: string
+          nullable: false
+          format: uuid
+        manifest:
+          type: object
+          $ref: '#/components/schemas/manifest'
