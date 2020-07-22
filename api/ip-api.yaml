@@ -180,6 +180,52 @@ paths:
                       “uid”: “845872bf-cbf8-48e6-b495-ec6b4a63b609”,
                       “name”: “IP.101.XYZ”,
                     }
+  /ips/{uid}/representations:
+    get:
+      tags:
+        - /ips
+      description: Get the representations of an information package by uid.
+      summary: Get package representations.
+      operationId: getIpRepresentations
+      parameters:
+        - in: path
+          name: uid
+          description: UUID of the package to retrieve
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: List of package representations
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/representation'
+  /ips/{uid}/manifests:
+    get:
+      tags:
+        - /ips
+      description: Get any manifests for an information package.
+      summary: Get package manifests.
+      operationId: getIpManifests
+      parameters:
+        - in: path
+          name: uid
+          description: UUID of the package to retrieve
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: List of package manifests
+          content:
+            application/json:
+              schema:
+                type: object
+                $ref: '#/components/schemas/ipManifest'
   /profiles:
     get:
       tags:
@@ -273,86 +319,6 @@ paths:
                   $ref: '#/components/schemas/ipManifest'
                 example: |-
                   []
-    post:
-      tags:
-        - /ips-manifests
-      description: Upload an information package manifest for comparison or validation.
-      summary: Upload package manifest.
-      operationId: postManifest
-      parameters: []
-      requestBody:
-        content:
-          application/json:
-            schema:
-              type: array
-              items:
-                $ref: '#/components/schemas/manifest'
-      responses:
-        '201':
-          description: Manifest successfully uploaded.
-          content:
-            application/json:
-              schema:
-                type: object
-                $ref: '#/components/schemas/manifestSummary'
-              examples:
-                manifestSummary:
-                  value: |-
-                    {
-                      “uid”: “845872bf-cbf8-48e6-b495-ec6b4a63b607”,
-                      "fileCount": 20,
-                      "totalSize": 200564,
-                    }
-    delete:
-      tags:
-        - /ips-manifests
-      description: Delete all information package manifest for this user.
-      summary: Delete IP manifests.
-      operationId: deleteIpManifests
-      parameters: []
-      responses:
-        '202':
-          description: All information package manifests deleted for this user
-          content:
-            application/json:
-              schema:
-                type: array
-                items:
-                  $ref: '#/components/schemas/ipManifest'
-              examples:
-                packageUids:
-                  value: |-
-                    [
-                      {
-                          “uid”: “845872bf-cbf8-48e6-b495-ec6b4a63b607”,
-                      },
-                      {
-                          “uid”: “845872bf-cbf8-48e6-b495-ec6b4a63b609”,
-                      }
-                    ]
-  /ips-manifests/{uid}:
-    get:
-      tags:
-        - /ips-manifests
-      description: Retrieve an information package manifest by uid
-      summary: Get IP by uid
-      operationId: getManifestByUid
-      parameters:
-        - in: path
-          name: uid
-          description: UID of the manifest to retrieve
-          required: true
-          schema:
-            type: string
-            format: uuid
-      responses:
-        '200':
-          description: An information package manifest
-          content:
-            application/json:
-              schema:
-                type: object
-                $ref: '#/components/schemas/ipManifest'
 components:
   schemas:
     upload:
