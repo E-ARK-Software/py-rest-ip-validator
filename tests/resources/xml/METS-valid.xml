@@ -102,7 +102,7 @@
     <!-- CSIP81 mets/structMap/@TYPE The type attribute of the structural map (structMap) is set to value “PHYSICAL” from the vocabualry -->
     <!-- CSIP82 mets/structMap/@LABEL The value must be “CSIP StructMap” -->
     <!-- CSIP83 mets/structMap/@ID -->
-    <div ID="ID-Structmap_Div_ID" LABEL="ID-Minimal_IP_with_schemas">
+    <div ID="ID-Structmap_Div_ID" LABEL="minimal_IP_with_schemas">
       <!-- CSIP84 mets/structMap/div -->
       <!-- CSIP85 mets/structMap/div/@ID -->
       <!-- CSIP86 mets/structMap/div/@LABEL -->
