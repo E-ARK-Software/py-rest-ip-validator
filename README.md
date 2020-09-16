@@ -61,23 +61,37 @@ docker build --tag=eark4all/py-ip-validator:dev -f Dockerfile.dev .
 You then need to run a container instance, here's the command followed by a quick explanation:
 
 ```shell
-docker run -p 5000:5000 -u $(id -u) -v "$PWD":/app -v /tmp:/tmp --detach --rm --name py-ip-dev eark4all/py-ip-validator:dev
+docker run -p 5000:5000 -v "$PWD":/app --detach --rm --name py-ip-dev eark4all/py-ip-validator:dev
 ```
 
 Here's the options explained:
 ```
   -p 5000:5000      Map port 5000 from the host to the container
   -v "$PWD":/app    Map the host current directory to the container /app directory
-  -v /tmp:/tmp      Map temp on the host to the container temp directory
   --detach          Detach from terminal session
   --rm              Remove container instance
   --name py-ip-dev  Give the container a name
 ```
-
 Again open your browser and navigate to http://localhost:5000. You can work on the code and issue the command:
 
 ```shell
 docker restart py-ip-dev
+```
+
+#### Log file access on Linux
+If you're running on a Linux box it's possible to push the log file to a directory on the host so that it
+can be read. You'll need a couple of extra options:
+
+```shell
+docker run -p 5000:5000 -u $(id -u) -v "$PWD":/app -v /tmp:/tmp --detach --rm --name py-ip-dev eark4all/py-ip-validator:dev
+```
+
+The new options are:
+```
+  -u $(id -u)       Ensure that the user id on the container matches the host user.
+                    This means that you have permissions to remove the log file
+  -v /tmp:/tmp      Map temp on the host to the container temp directory, this is
+                    where the log file lives.
 ```
 
 ### Configuration
