@@ -28,7 +28,7 @@ import os
 import unittest
 
 from ip_validation.infopacks import information_package as IP
-from ip_validation.infopacks.rules import Severity
+import ip_validation.utils as UTILS
 
 MIN_TAR_SHA1 = '47ca3a9d7f5f23bf35b852a99785878c5e543076'
 
@@ -63,9 +63,9 @@ class ArchiveHandlerTest(unittest.TestCase):
                                   'minimal_IP_with_schemas.tar.gz')
 
     def test_sha1(self):
-        sha1 = IP.ArchivePackageHandler.calc_sha1(self.empty_path)
+        sha1 = UTILS.sha1(self.empty_path)
         self.assertTrue(sha1 == 'da39a3ee5e6b4b0d3255bfef95601890afd80709')
-        sha1 = IP.ArchivePackageHandler.calc_sha1(self.min_tar_path)
+        sha1 = UTILS.sha1(self.min_tar_path)
         self.assertTrue(sha1 == MIN_TAR_SHA1)
 
     def test_is_archive(self):

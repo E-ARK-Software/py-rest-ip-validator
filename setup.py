@@ -57,6 +57,9 @@ setup(name='eark-ip-validation',
         + find_version('__version__', 'ip_validation', 'webapp.py') + '.tar.gz',
       package_data={'ip_validation': ['*.*']},
       license="Apache License 2.0",
+      entry_points={'console_scripts': [
+          'ip-check = ip_validation.cli.app:main',
+      ]},
       classifiers=[
           'Intended Audience :: Archivists',
           'License :: OSI Approved :: Apache Software License',
