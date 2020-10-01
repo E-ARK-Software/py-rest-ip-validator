@@ -1,7 +1,9 @@
 openapi: 3.0.3
 info:
   title: E-ARK IP Validation API
-  description: REST API definition for [E-ARK information package validation](https://earkcsip.dilcis.eu/).
+  description: |-
+    # REST API definition for E-ARK Information package validation
+    For further details see [E-ARK information package validation](https://earkcsip.dilcis.eu/).
   version: 0.1.0
   contact:
     name: Carl Wilson
@@ -20,6 +22,13 @@ tags:
     description: Request for information package validation
 paths:
   /ips:
+    summary: Package Binary operations
+    description: |-
+      # E-ARK Information Package Binary Operations
+      These REST endpoints provide operations for managing Information Package Binaries including:
+      * uploading packages
+      * listing uploaded packages
+      * deleting uploaded packages
     get:
       tags:
         - /ips
@@ -73,7 +82,6 @@ paths:
           content:
             application/json:
               schema:
-                type: object
                 $ref: '#/components/schemas/packageDetails'
               examples:
                 packageDetails:
@@ -142,7 +150,6 @@ paths:
           content:
             application/json:
               schema:
-                type: object
                 $ref: '#/components/schemas/informationPackage'
               examples:
                 package:
@@ -171,7 +178,6 @@ paths:
            content:
              application/json:
                schema:
-                 type: object
                  $ref: '#/components/schemas/upload'
                examples:
                 packageUid:
@@ -201,7 +207,6 @@ paths:
           content:
             application/json:
               schema:
-                type: object
                 $ref: '#/components/schemas/representation'
   /ips/{uid}/manifests:
     get:
@@ -224,7 +229,6 @@ paths:
           content:
             application/json:
               schema:
-                type: object
                 $ref: '#/components/schemas/ipManifest'
   /profiles:
     get:
@@ -289,7 +293,6 @@ paths:
           content:
             application/json:
               schema:
-                type: object
                 $ref: '#/components/schemas/profileDetails'
               examples:
                 profile:
@@ -319,9 +322,91 @@ paths:
                   $ref: '#/components/schemas/ipManifest'
                 example: |-
                   []
+  /validations:
+    get:
+      tags:
+        - /validations
+      description: Retrieves a lits of available validation results
+      summary: Retrieve valdiation results
+      operationId: getValidations
+      responses:
+        '200':
+          description: A list of validation result summaries
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/validationReport'
+              example: |-
+                []
+  /validations/{uid}:
+    get:
+      tags:
+        - /validations
+      description: Retrieve a validation result by uid
+      summary: Get validation result
+      operationId: getValidationResult
+      parameters:
+        - in: path
+          name: uid
+          description: UUID of the package to retrieve
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: A validation report
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/validationReport'
+              examples:
+                profile:
+                  value: |-
+                    {
+                    }
+  /validate:
+    post:
+      tags:
+        - /ips
+      description: Upload a package binary for validation and return validation result immediately.
+      summary: Synchronous package valdition.
+      operationId: validate
+      parameters:
+        - in: header
+          name: sha1
+          description: SHA-1 hash of package to validate
+          schema:
+            type: string
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                sha1:
+                  type: string
+                fileName:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: A validation report
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/validationReport'
+              examples:
+                profile:
+                  value: |-
+                    {
+                    }
 components:
   schemas:
     upload:
+      
       type: object
       properties:
         uid:
@@ -329,16 +414,17 @@ components:
           nullable: false
           format: uuid
         state:
-          type: string
-          nullable: false
-          default: UPLOADED
-          enum:
-            - UPLOADED
-            - CHECKSUMMED
-            - VALIDATED
+          $ref: '#/components/schemas/packageState'
         details:
-          type: object
           $ref: '#/components/schemas/packageDetails'
+    packageState:
+      type: string
+      nullable: false
+      default: UPLOADED
+      enum:
+        - UPLOADED
+        - CHECKSUMMED
+        - VALIDATED
     packageDetails:
       type: object
       properties:
@@ -353,17 +439,19 @@ components:
       type: object
       properties:
         algorithm:
-          type: string
-          nullable: false
-          default: SHA1
-          enum:
-            - MD5
-            - SHA1
-            - SHA256
-            - SHA512
+          $ref: '#/components/schemas/checksumAlg'
         value:
           type: string
           nullable: false
+    checksumAlg:
+      type: string
+      nullable: false
+      default: SHA1
+      enum:
+        - MD5
+        - SHA1
+        - SHA256
+        - SHA512
     testResult:
       type: object
       properties:
@@ -376,37 +464,34 @@ components:
         message:
           type: string
         severity:
-          type: string
-          enum:
-            - Info
-            - Warn
-            - Error
+          $ref: '#/components/schemas/severity'
     profileDetails:
       type: object
       properties:
         type:
-          type: string
-          enum:
-            - CSIP
-            - SIP
-            - DIP
+          $ref: '#/components/schemas/ipType'
         name:
           type: string
           nullable: false
         version:
           type: string
           nullable: false
+    ipType:
+      type: string
+      nullable: false
+      default: CSIP
+      enum:
+        - CSIP
+        - SIP
+        - DIP
     informationPackage:
       type: object
       properties:
         details:
-          type: object
           $ref: '#/components/schemas/packageDetails'
         profile:
-          type: object
           $ref: '#/components/schemas/profileDetails'
         representations:
-          type: object
           $ref: '#/components/schemas/representation'
     representation:
       type: object
@@ -422,8 +507,54 @@ components:
           format: uuid
           nullable: false
         package:
-          type: object
           $ref: '#/components/schemas/informationPackage'
+        structure:
+          $ref: '#/components/schemas/structResults'
+        metadata:
+          $ref: '#/components/schemas/metadataResults'
+    structResults:
+      type: object
+      properties:
+        status:
+          $ref: '#/components/schemas/structStatus'
+        messages:
+          type: array
+          items:
+            $ref: '#/components/schemas/testResult'
+    structStatus:
+      type: string
+      enum:
+        - Unknown
+        - NotWellFormed
+        - WellFormed
+    metadataResults:
+      type: object
+      properties:
+        schemaResults:
+          $ref: '#/components/schemas/metadataChecks'
+        schematronResults:
+          $ref: '#/components/schemas/metadataChecks'
+    metadataChecks:
+      type: object
+      properties:
+        status:
+          $ref: '#/components/schemas/metadataStatus'
+        messages:
+          type: array
+          items:
+            $ref: '#/components/schemas/testResult'
+    metadataStatus:
+      type: string
+      enum:
+        - Unknown
+        - NotValid
+        - Valid
+    severity:
+      type: string
+      enum:
+        - Info
+        - Warn
+        - Error
     manifestEntry:
       type: object
       properties:
@@ -457,7 +588,6 @@ components:
           description: Some class to cover different types of manifest source (archive, filesystem, METS)
           nullable: false
         summary:
-          type: object
           $ref: '#/components/schemas/manifestSummary'
         entries:
           type: array
@@ -471,5 +601,4 @@ components:
           nullable: false
           format: uuid
         manifest:
-          type: object
           $ref: '#/components/schemas/manifest'
