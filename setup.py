@@ -24,10 +24,13 @@ def find_version(version_id, *file_paths):
 
 INSTALL_REQUIRES = [
     'setuptools',
-    'flask == 1.1.2',
-    'Flask-Negotiate == 0.1.0',
     'lxml == 3.7.3',
     'importlib_resources',
+]
+
+FLASK_REQUIRES = [
+    'flask == 1.1.2',
+    'Flask-Negotiate == 0.1.0',
     'flask-debugtoolbar',
 ]
 
@@ -35,9 +38,21 @@ SETUP_REQUIRES = [
     'pytest-runner',
 ]
 
-TEST_REQUIRES = [
+TEST_DEPS = [
+    'pre-commit',
     'pytest',
+    'pylint',
+    'pytest-cov',
+    'flask == 1.1.2',
+    'Flask-Negotiate == 0.1.0',
+    'flask-debugtoolbar',
 ]
+
+EXTRAS = {
+    'flask': FLASK_REQUIRES,
+    'testing': TEST_DEPS,
+    'setup': SETUP_REQUIRES,
+}
 
 with open('README.md', 'r') as README:
     README_TEXT = README.read()
@@ -67,8 +82,9 @@ setup(name='eark-ip-validation',
           'Programming Language :: Python :: 3.5',
           'Programming Language :: Python :: 3.6',
       ],
+      extras_require=EXTRAS,
       install_requires=INSTALL_REQUIRES,
       setup_requires=SETUP_REQUIRES,
-      tests_require=TEST_REQUIRES,
+      tests_require=TEST_DEPS,
       test_suite='tests',
      )

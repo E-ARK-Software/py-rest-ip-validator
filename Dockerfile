@@ -13,7 +13,7 @@ COPY requirements.txt requirements.txt
 COPY README.md README.md
 COPY ip_validation/* ip_validation/
 
-RUN mkdir /install && pip install -U pip && pip install -r requirements.txt --prefix=/install && pip install --prefix=/install .
+RUN mkdir /install && pip install -U pip && pip install -r requirements.txt --prefix=/install && pip install --prefix=/install .[flask]
 
 FROM python:3.6-alpine
 

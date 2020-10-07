@@ -10,7 +10,7 @@ COPY setup.py setup.py
 COPY requirements.txt requirements.txt
 COPY ip_validation/* ip_validation/
 COPY README.md README.md
-RUN pip install -U pip && pip install -r /tmp/requirements.txt && pip install -U .
+RUN pip install -U pip && pip install -r /tmp/requirements.txt && pip install -U .[flask]
 
 EXPOSE 5000
 ENV FLASK_APP='ip_validation'
