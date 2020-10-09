@@ -38,7 +38,7 @@ class TestStatus(Enum):
 class StatusValuesTest(unittest.TestCase):
     """Tests for package and manifest status values."""
     def test_lgl_pckg_status(self):
-        for status in list(IP.PackageStatus):
+        for status in list(IP.StructureStatus):
             details = IP.PackageDetails("test", package_status=status)
             self.assertTrue(details.package_status == status)
 

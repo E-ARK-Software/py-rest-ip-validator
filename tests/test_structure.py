@@ -40,7 +40,7 @@ class StructValidationTests(unittest.TestCase):
         ip_path = os.path.join(os.path.dirname(__file__), 'resources', 'ips', 'unpacked',
                                'single_file')
         details = IP.check_package_root(ip_path)
-        self.assertTrue(details.package_status == IP.PackageStatus.NotWellFormed,
+        self.assertTrue(details.package_status == IP.StructureStatus.NotWellFormed,
                         'Expecting status NotWellFormed, not {}'.format(details.package_status))
         val_errors = details.errors
         self.assertTrue(len(val_errors) == 1,
@@ -53,7 +53,7 @@ class StructValidationTests(unittest.TestCase):
         ip_path = os.path.join(os.path.dirname(__file__), 'resources', 'ips', 'unpacked',
                                'multi_dir')
         details = IP.check_package_root(ip_path)
-        self.assertTrue(details.package_status == IP.PackageStatus.NotWellFormed,
+        self.assertTrue(details.package_status == IP.StructureStatus.NotWellFormed,
                         'Expecting status NotWellFormed, not {}'.format(details.package_status))
         val_errors = details.errors
         self.assertTrue(len(val_errors) == 1,
@@ -66,7 +66,7 @@ class StructValidationTests(unittest.TestCase):
         ip_path = os.path.join(os.path.dirname(__file__), 'resources', 'ips', 'unpacked',
                                'multi_file')
         details = IP.check_package_root(ip_path)
-        self.assertTrue(details.package_status == IP.PackageStatus.NotWellFormed,
+        self.assertTrue(details.package_status == IP.StructureStatus.NotWellFormed,
                         'Expecting status NotWellFormed, not {}'.format(details.package_status))
         val_errors = details.errors
         self.assertTrue(len(val_errors) == 1,
@@ -79,7 +79,7 @@ class StructValidationTests(unittest.TestCase):
         ip_path = os.path.join(os.path.dirname(__file__), 'resources', 'ips', 'unpacked',
                                'multi_var')
         details = IP.check_package_root(ip_path)
-        self.assertTrue(details.package_status == IP.PackageStatus.NotWellFormed,
+        self.assertTrue(details.package_status == IP.StructureStatus.NotWellFormed,
                         'Expecting status NotWellFormed, not {}'.format(details.package_status))
         val_errors = details.errors
         self.assertTrue(len(val_errors) == 1,
@@ -98,7 +98,7 @@ class StructValidationTests(unittest.TestCase):
         ip_path = os.path.join(os.path.dirname(__file__), 'resources', 'ips', 'minimal',
                                'minimal_IP_with_schemas.zip')
         details = IP.validate_package_structure(ip_path)
-        self.assertTrue(details.package_status == IP.PackageStatus.WellFormed,
+        self.assertTrue(details.package_status == IP.StructureStatus.WellFormed,
                         'Expecting status WellFormed, not {}'.format(details.package_status))
         val_errors = details.errors
         self.assertTrue(len(val_errors) == 3,
@@ -115,7 +115,7 @@ class StructValidationTests(unittest.TestCase):
         ip_path = os.path.join(os.path.dirname(__file__), 'resources', 'ips', 'struct',
                                'no_mets.tar.gz')
         details = IP.validate_package_structure(ip_path)
-        self.assertTrue(details.package_status == IP.PackageStatus.NotWellFormed,
+        self.assertTrue(details.package_status == IP.StructureStatus.NotWellFormed,
                         'Expecting status NotWellFormed, not {}'.format(details.package_status))
         val_errors = details.errors
         self.assertTrue(len(val_errors) == 4,
@@ -133,7 +133,7 @@ class StructValidationTests(unittest.TestCase):
         ip_path = os.path.join(os.path.dirname(__file__), 'resources', 'ips', 'struct',
                                'no_md.tar.gz')
         details = IP.validate_package_structure(ip_path)
-        self.assertTrue(details.package_status == IP.PackageStatus.WellFormed,
+        self.assertTrue(details.package_status == IP.StructureStatus.WellFormed,
                         'Expecting status WellFormed, not {}'.format(details.package_status))
         val_errors = details.errors
         self.assertTrue(len(val_errors) == 4,
@@ -152,7 +152,7 @@ class StructValidationTests(unittest.TestCase):
         ip_path = os.path.join(os.path.dirname(__file__), 'resources', 'ips', 'struct',
                                'no_schemas.tar.gz')
         details = IP.validate_package_structure(ip_path)
-        self.assertTrue(details.package_status == IP.PackageStatus.WellFormed,
+        self.assertTrue(details.package_status == IP.StructureStatus.WellFormed,
                         'Expecting status WellFormed, not {}'.format(details.package_status))
         val_errors = details.errors
         for err in val_errors:
@@ -171,7 +171,7 @@ class StructValidationTests(unittest.TestCase):
         ip_path = os.path.join(os.path.dirname(__file__), 'resources', 'ips', 'struct',
                                'no_data.tar.gz')
         details = IP.validate_package_structure(ip_path)
-        self.assertTrue(details.package_status == IP.PackageStatus.WellFormed,
+        self.assertTrue(details.package_status == IP.StructureStatus.WellFormed,
                         'Expecting status WellFormed, not {}'.format(details.package_status))
         val_errors = details.errors
         self.assertTrue(len(val_errors) == 4,
@@ -189,7 +189,7 @@ class StructValidationTests(unittest.TestCase):
         ip_path = os.path.join(os.path.dirname(__file__), 'resources', 'ips', 'struct',
                                'no_reps.tar.gz')
         details = IP.validate_package_structure(ip_path)
-        self.assertTrue(details.package_status == IP.PackageStatus.WellFormed,
+        self.assertTrue(details.package_status == IP.StructureStatus.WellFormed,
                         'Expecting status WellFormed, not {}'.format(details.package_status))
         val_errors = details.errors
         for err in val_errors:
