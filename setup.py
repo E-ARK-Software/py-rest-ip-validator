@@ -67,10 +67,10 @@ setup(name='eark-ip-validation',
       author_email='carl@openpreservation.org',
       maintainer='Carl Wilson',
       maintainer_email='carl@openpreservation.org',
-      url="http://github.com/carlwilson/py-ip-validator",
-      download_url='https://github.com/carlwilson/py-ip-validator/archive/' \
+      url="https://github.com/E-ARK-Software/py-rest-ip-validator",
+      download_url='https://github.com/E-ARK-Software/py-rest-ip-validator/archive/' \
         + find_version('__version__', 'ip_validation', 'webapp.py') + '.tar.gz',
-      package_data={'ip_validation': ['*.*'], 'ip_validation': ['ip_validation/cli/resources/testCase.xsd']},
+      package_data={'ip_validation': ['*.*', 'cli/resources/*.*']},
       license="Apache License 2.0",
       entry_points={'console_scripts': [
           'ip-check = ip_validation.cli.app:main',
