@@ -39,11 +39,11 @@ class StatusValuesTest(unittest.TestCase):
     """Tests for package and manifest status values."""
     def test_lgl_pckg_status(self):
         for status in list(IP.StructureStatus):
-            details = IP.PackageDetails("test", package_status=status)
-            self.assertTrue(details.package_status == status)
+            details = IP.PackageDetails("test", structure_status=status)
+            self.assertTrue(details.structure_status == status)
 
     def test_illgl_pckg_status(self):
-        self.assertRaises(ValueError, IP.PackageDetails, "test", package_status=TestStatus.Illegal)
+        self.assertRaises(ValueError, IP.PackageDetails, "test", structure_status=TestStatus.Illegal)
 
     def test_lgl_mnfst_status(self):
         for status in list(IP.ManifestStatus):
