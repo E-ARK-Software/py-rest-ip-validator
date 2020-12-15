@@ -26,6 +26,7 @@ INSTALL_REQUIRES = [
     'setuptools',
     'lxml == 3.7.3',
     'importlib_resources',
+    'jinja2',
 ]
 
 FLASK_REQUIRES = [
@@ -74,6 +75,7 @@ setup(name='eark-ip-validation',
       license="Apache License 2.0",
       entry_points={'console_scripts': [
           'ip-check = ip_validation.cli.app:main',
+          'corp-check = ip_validation.cli.corpora:main',
       ]},
       classifiers=[
           'Intended Audience :: Archivists',
