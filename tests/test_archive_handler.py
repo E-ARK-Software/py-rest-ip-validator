@@ -27,7 +27,7 @@ from enum import Enum
 import os
 import unittest
 
-from ip_validation.infopacks import information_package as IP
+from ip_validation.infopacks import structure as STRUCT
 import ip_validation.utils as UTILS
 
 MIN_TAR_SHA1 = '47ca3a9d7f5f23bf35b852a99785878c5e543076'
@@ -38,20 +38,12 @@ class TestStatus(Enum):
 class StatusValuesTest(unittest.TestCase):
     """Tests for package and manifest status values."""
     def test_lgl_pckg_status(self):
-        for status in list(IP.StructureStatus):
-            details = IP.PackageDetails("test", structure_status=status)
-            self.assertTrue(details.structure_status == status)
+        for status in list(STRUCT.StructureStatus):
+            details = STRUCT.StructureReport(status=status)
+            self.assertTrue(details.status == status)
 
     def test_illgl_pckg_status(self):
-        self.assertRaises(ValueError, IP.PackageDetails, "test", structure_status=TestStatus.Illegal)
-
-    def test_lgl_mnfst_status(self):
-        for status in list(IP.ManifestStatus):
-            details = IP.PackageDetails("test", manifest_status=status)
-            self.assertTrue(details.manifest_status == status)
-
-    def test_illgl_mnfst_status(self):
-        self.assertRaises(ValueError, IP.PackageDetails, "test", manifest_status=TestStatus.Illegal)
+        self.assertRaises(ValueError, STRUCT.StructureReport, status=TestStatus.Illegal)
 
 class ArchiveHandlerTest(unittest.TestCase):
     empty_path = os.path.join(os.path.dirname(__file__), 'resources', 'empty.file')
@@ -69,17 +61,17 @@ class ArchiveHandlerTest(unittest.TestCase):
         self.assertTrue(sha1 == MIN_TAR_SHA1)
 
     def test_is_archive(self):
-        self.assertTrue(IP.ArchivePackageHandler.is_archive(self.min_tar_path))
-        self.assertTrue(IP.ArchivePackageHandler.is_archive(self.min_zip_path))
-        self.assertTrue(IP.ArchivePackageHandler.is_archive(self.min_targz_path))
-        self.assertFalse(IP.ArchivePackageHandler.is_archive(self.empty_path))
+        self.assertTrue(STRUCT.ArchivePackageHandler.is_archive(self.min_tar_path))
+        self.assertTrue(STRUCT.ArchivePackageHandler.is_archive(self.min_zip_path))
+        self.assertTrue(STRUCT.ArchivePackageHandler.is_archive(self.min_targz_path))
+        self.assertFalse(STRUCT.ArchivePackageHandler.is_archive(self.empty_path))
 
     def test_unpack_illgl_archive(self):
-        handler = IP.ArchivePackageHandler()
-        self.assertRaises(IP.PackageStructError, handler.unpack_package, self.empty_path)
+        handler = STRUCT.ArchivePackageHandler()
+        self.assertRaises(STRUCT.PackageStructError, handler.unpack_package, self.empty_path)
 
     def test_unpack_archives(self):
-        handler = IP.ArchivePackageHandler()
+        handler = STRUCT.ArchivePackageHandler()
         dest = handler.unpack_package(self.min_tar_path)
         self.assertTrue(os.path.basename(dest) == MIN_TAR_SHA1)
         dest = handler.unpack_package(self.min_zip_path)
