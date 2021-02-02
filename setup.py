@@ -41,7 +41,7 @@ SETUP_REQUIRES = [
 
 TEST_REQUIRES = [
     'pylint',
-    'pytest',
+    'pytest >= 4.6',
     'pytest-cov',
     'codecov',
 ]
