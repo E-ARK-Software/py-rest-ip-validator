@@ -12,7 +12,7 @@ install:
 
 # command to run tests
 script:
-  - pytest --cov=validation ./tests/
+  - pytest --cov=ip_validation ./tests/
 
 after_success:
   - coverage xml
