@@ -40,8 +40,16 @@ SETUP_REQUIRES = [
 ]
 
 TEST_REQUIRES = [
+    'pylint',
     'pytest',
+    'pytest-cov',
+    'codecov',
 ]
+
+EXTRAS = {
+    'testing': TEST_REQUIRES,
+    'flask': FLASK_REQUIRES,
+}
 
 with open('README.md', 'r') as README:
     README_TEXT = README.read()
@@ -71,5 +79,6 @@ setup(name='eark-ip-validation',
       install_requires=INSTALL_REQUIRES,
       setup_requires=SETUP_REQUIRES,
       tests_require=TEST_REQUIRES,
+      extras_require=EXTRAS,
       test_suite='tests',
      )
