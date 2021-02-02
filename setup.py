@@ -24,10 +24,14 @@ def find_version(version_id, *file_paths):
 
 INSTALL_REQUIRES = [
     'setuptools',
+    'lxml >= 4.6.2',
+    'importlib_resources',
+    'jinja2',
+]
+
+FLASK_REQUIRES = [
     'flask == 1.1.2',
     'Flask-Negotiate == 0.1.0',
-    'lxml == 3.7.3',
-    'importlib_resources',
     'flask-debugtoolbar',
 ]
 
@@ -36,8 +40,16 @@ SETUP_REQUIRES = [
 ]
 
 TEST_REQUIRES = [
-    'pytest',
+    'pylint',
+    'pytest >= 4.6',
+    'pytest-cov',
+    'codecov',
 ]
+
+EXTRAS = {
+    'testing': TEST_REQUIRES,
+    'flask': FLASK_REQUIRES,
+}
 
 with open('README.md', 'r') as README:
     README_TEXT = README.read()
@@ -67,5 +79,6 @@ setup(name='eark-ip-validation',
       install_requires=INSTALL_REQUIRES,
       setup_requires=SETUP_REQUIRES,
       tests_require=TEST_REQUIRES,
+      extras_require=EXTRAS,
       test_suite='tests',
      )

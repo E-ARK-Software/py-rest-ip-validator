@@ -7,12 +7,12 @@ python:
 # command to install dependencies
 install:
   - sudo apt-get install -y python-dev libxml2-dev libxslt1-dev python3-dev
-  - pip install pytest-cov codecov codacy-coverage
-  - pip install -e .
+  - pip install codacy-coverage
+  - pip install -e ".[flask,testing]"
 
 # command to run tests
 script:
-  - pytest --cov=validation ./tests/
+  - pytest --cov=ip_validation ./tests/
 
 after_success:
   - coverage xml
