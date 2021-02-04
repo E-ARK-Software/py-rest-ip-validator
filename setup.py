@@ -24,7 +24,7 @@ def find_version(version_id, *file_paths):
 
 INSTALL_REQUIRES = [
     'setuptools',
-    'lxml == 3.7.3',
+    'lxml >= 4.6.2',
     'importlib_resources',
     'jinja2',
 ]
@@ -39,20 +39,16 @@ SETUP_REQUIRES = [
     'pytest-runner',
 ]
 
-TEST_DEPS = [
-    'pre-commit',
-    'pytest',
+TEST_REQUIRES = [
     'pylint',
+    'pytest >= 4.6',
     'pytest-cov',
-    'flask == 1.1.2',
-    'Flask-Negotiate == 0.1.0',
-    'flask-debugtoolbar',
+    'codecov',
 ]
 
 EXTRAS = {
+    'testing': TEST_REQUIRES,
     'flask': FLASK_REQUIRES,
-    'testing': TEST_DEPS,
-    'setup': SETUP_REQUIRES,
 }
 
 with open('README.md', 'r') as README:
@@ -84,9 +80,9 @@ setup(name='eark-ip-validation',
           'Programming Language :: Python :: 3.5',
           'Programming Language :: Python :: 3.6',
       ],
-      extras_require=EXTRAS,
       install_requires=INSTALL_REQUIRES,
       setup_requires=SETUP_REQUIRES,
-      tests_require=TEST_DEPS,
+      tests_require=TEST_REQUIRES,
+      extras_require=EXTRAS,
       test_suite='tests',
      )
