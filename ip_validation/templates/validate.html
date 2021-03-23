@@ -5,6 +5,7 @@
 <h2>Package ID: {{ details.name }}</h2>
 <h3>Structure Checks</h3>
 <p class='lead {{ details.package_status.name|lower }}'>{{ details.package_status.name }}</p>
+<p><a class="btn btn-primary" href="/" role="button">Home</a></p>
 <table class="table table-striped">
   <tr>
     <th>ID</th>
@@ -55,6 +56,7 @@
   {{ prop_rows(profile_results) }}
 
 </table>
+<p><a class="btn btn-primary" href="/" role="button">Home</a></p>
 {% endblock page_content %}
 {% block page_script %}
 {% endblock page_script %}
