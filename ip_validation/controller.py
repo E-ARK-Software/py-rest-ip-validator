@@ -47,6 +47,11 @@ def home():
     """Application home page."""
     return render_template('home.html')
 
+@APP.route("/help/")
+def help_page():
+    """Application help page."""
+    return render_template('help.html')
+
 @APP.route("/api/report/<report_id>/")
 @produces(JSON_MIME, XML_MIME)
 def full_report():

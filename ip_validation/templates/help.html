@@ -1,0 +1,69 @@
+{% extends "page.html" %}
+{% block title %}Help{% endblock %}
+{% block page_content %}
+    <h1>Valdiation Process</h1>
+    <p>We model and implement IP validation as a three stage process.</p>
+    <h2>Stage 1: Well-Formedness Checks</h2>
+    <p>
+    Definition:  A well-formed IP is one which conforms to the basic <a href="https://earkcsip.dilcis.eu/#folderstructureofthecsip">structural rules</a> set out in CSIP.
+    Well-formedness, in this context, concerns only the overall structure of an IP and not that of its contents.  It is therefore possible to have a well-formed IP some of whose contents (for example, an XML document) are not themselves well-formed.
+    Following from this, it is important to understand that at this stage of validation, checks are confined solely to the structure of the IP.  Container files (e.g. .zip, .tar) are examined for structure (files names and locations), the file contents are NOT examined at this stage meaning that empty files are acceptable for testing.
+    These requirements are generally found in <a href="https://earkcsip.dilcis.eu/#folderstructureofthecsip">Section 4.1 of the common specification.</a>
+    Tests include:
+    <ul>
+      <li>the form of the submission (E-ARK validation is concerned with the file system and is therefore neutral on the container format employed.  At this time direct support is available for .zip and .tar);</li>
+      <li>the presence of expected named folders (e.g. metadata folder expected); and</li>
+      <li>the presence of expected files (e.g. root METS.xml).</li>
+    </ul>
+    </p>
+    <h2>Stage 2: Validity Checks</h2>
+    <p>
+      Validity checking consists of:
+      <ul>
+        <li>Checking METS files against the schema</li>
+        <li>Applying the E-ARK extension schema</li>
+        <li>Applying the validation rules (schematron) on top of the schema</li>
+      </ul>
+      These tests will be drawn from <a href="https://earkcsip.dilcis.eu/#useofmets">Section 5.3 Use of METS</a>. Examples are:
+      <ul>
+        <li>validation of the METS document against the METS schema;</li>
+        <li>applying additional schema, e.g. the E-ARK extension schema for an OAISPACKAGETYPE: <a href="https://github.com/DILCISBoard/E-ARK-CSIP/blob/doc/readme/xml/DILCISExtensionMETS.xsd">https://github.com/DILCISBoard/E-ARK-CSIP/blob/doc/readme/xml/DILCISExtensionMETS.xsd</a>;</li>
+        <li>the CSIP and lower level IP validation rules written as schematron; and</li>
+        <li>running Schematron checks that enforce requirements from the implementation section of the common specification.</li>
+      </ul>
+      Note: "Validity" is to be interpreted as "Information Package validity." It is not to be confused with XML document validity (the document's conformance to the rules set in a particular XML schema), which is only a part of Information Package validity.
+      This stage of validation includes checking individual METS.xml files for well-formedness and validity against schemas (mets.xsd, E-ARK extension schema), and running Schematron checks for requirements set in CSIP.
+    </p>
+    <h2>Stage 3: Integrity Checks</h2>
+    <p>
+      The final checks are tests on the package content and include:
+      <ul>
+        <li>ensuring files listed in the METS document are present on the file system;</li>
+        <li>these files have the correct checksums (if the values are available); and</li>
+        <li>that there are no files in the package NOT mentioned in the METS document.</li>
+      </ul>
+      Note: "Integrity" is to be interpreted as "Information Package integrity," not to be confused with individual file integrity. Thus, "integrity" refers to the accuracy and consistency of the whole Information Package, while individual file integrity is part of it.
+    </p>
+    <h1>Validation Errors</h1>
+    <p>
+    The validator defines the following fields: link / reference
+    Level: One of [INFO | WARNING | ERROR] where
+    ERROR indicates the violation of a MUST specification clause;
+    WARNING is issued for violations of SHOULD clauses;
+    INFO for all other messages, the current example is that the validator reports finding the METS.xml file.
+    Message: A free text string, currently hard-coded.
+    Description: A free text description, often unpopulated, again hard-coded.
+    A list of Paths to referenced objects, e.g. a single path to the METS document if that's not valid.
+    While we'll work within these constraints we quite probably require further information:
+    a unique identifier for the error condition;
+    a reference to the precise validation check where message and description are outside of the code and in approved, specification friendly terms.
+    </p>
+{% endblock page_content %}
+{% block page_script %}
+    <script src="/static/js/rest-client.js"></script>
+    <!-- Client side SHA-1 calculation -->
+    <script src="/static/js/rusha.min.js"></script>
+    <!-- JSON to HTML templating -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/json2html/1.2.0/json2html.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.json2html/1.2.0/jquery.json2html.min.js"></script>
+{% endblock page_script %}
