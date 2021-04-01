@@ -27,6 +27,7 @@ INSTALL_REQUIRES = [
     'lxml >= 4.6.2',
     'importlib_resources',
     'jinja2',
+    'GitPython'
 ]
 
 FLASK_REQUIRES = [
