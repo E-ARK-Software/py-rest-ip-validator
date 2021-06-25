@@ -22,6 +22,7 @@
 # specific language governing permissions and limitations
 # under the License.
 #
+"""Unit test module for all things test case related."""
 import unittest
 
 from importlib_resources import files
@@ -33,7 +34,13 @@ import tests.resources.test_cases as CASES
 class TestCasesTest(unittest.TestCase):
     """Tests for E-ARK XML Test Case classes."""
     def test_load_schematron(self):
-        case = TC.TestCase.from_xml_file(str(files(CASES).joinpath('csipstr1.xml')))
-        self.assertTrue(case.case_id.requirement_id == 'CSIP1')
-        self.assertFalse(case.testable)
-        self.assertTrue(len(case.requirement_text) > 0)
+        """A few case load sanity checks."""
+        case = TC.TestCase.from_xml_file(str(files(CASES).joinpath('sip33.xml')))
+        self.assertTrue(case.case_id.requirement_id == 'SIP33')
+        self.assertTrue(case.testable)
+        self.assertTrue(len(case.requirement.description) > 0)
+        self.assertTrue(len(case.rules) > 0)
+        for rule in case.rules:
+            self.assertTrue(len(rule.packages) > 0)
+            for package in rule.packages:
+                self.assertFalse(package.implemented)

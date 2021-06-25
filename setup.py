@@ -24,7 +24,7 @@ def find_version(version_id, *file_paths):
 
 INSTALL_REQUIRES = [
     'setuptools',
-    'lxml == 3.7.3',
+    'lxml',
     'importlib_resources',
     'jinja2',
 ]
