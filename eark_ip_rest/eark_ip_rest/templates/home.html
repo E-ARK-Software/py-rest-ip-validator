@@ -1,0 +1,41 @@
+{% extends "page.html" %}
+{% block title %}Home{% endblock %}
+{% block page_content %}
+    <div class="jumbotron">
+      <div class="media-left">
+        <img alt="E-ARK logo." title="E-ARK logo" height="100" src="{{ url_for('static', filename='img/logo.jpg') }}" />
+      </div>
+      <div class="media-body">
+        <h1 class="media-heading">E-ARK Information Package Validation</h1>
+      </div>
+    </div>
+    <div class="row">
+      <div class="col"></div>
+      <div class="col-8">
+        <h2>Choose an information package:</h2>
+        <form id="frm-validate" action="result" method="post" enctype="multipart/form-data" encoding="multipart/form-data">
+          <div class="custom-file">
+            <input type="file" class="custom-file-input" name="ip_file">
+            <label class="custom-file-label" for="ip_file">Choose information package to upload</label>
+            <span id="file-desc">Upload an E-ARK information package in zip, tar, or tar.gz formats.</span>
+          </div>
+          <div class="form-group">
+            <label for="sha1">Package SHA-1: </label>
+            <input name="sha1" type="text" class="form-control"  placeholder="SHA-1 hash of selected file." readonly >
+            <span id="sha-desc">This is calculated in your browser and used to ensure the package upload is error free.</span>
+          </div>
+          <button type="submit" class="btn btn-primary" disabled>Submit</button>
+          <p id="upload-desc">Upload the information package for validation. The maximum upload size limit is currently 40MB.</p>
+        </form>
+      </div>
+      <div class="col"></div>
+    </div><!-- end row -->
+{% endblock page_content %}
+{% block page_script %}
+    <script src="/static/js/rest-client.js"></script>
+    <!-- Client side SHA-1 calculation -->
+    <script src="/static/js/rusha.min.js"></script>
+    <!-- JSON to HTML templating -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/json2html/1.2.0/json2html.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery.json2html/1.2.0/jquery.json2html.min.js"></script>
+{% endblock page_script %}

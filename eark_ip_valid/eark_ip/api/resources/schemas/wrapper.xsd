@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<schema elementFormDefault="qualified" xmlns="http://www.w3.org/2001/XMLSchema">
+  <import namespace="http://www.loc.gov/METS/" schemaLocation="mets.xsd"/>
+  <import namespace="http://www.w3.org/1999/xlink" schemaLocation="xlink.xsd"/>
+  <import namespace="https://DILCIS.eu/XML/METS/CSIPExtensionMETS" schemaLocation="CSIPExtensionMETS.xsd"/>
+  <import namespace="http://www.w3.org/2001/XMLSchema-instance" schemaLocation="XMLSchema.xsd"/>
+</schema>

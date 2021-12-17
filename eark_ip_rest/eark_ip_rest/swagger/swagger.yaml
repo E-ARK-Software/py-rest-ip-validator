@@ -1,0 +1,431 @@
+openapi: 3.0.3
+info:
+  title: E-ARK IP Validation API
+  description: "# REST API definition for E-ARK Information package validation\nFor\
+    \ further details see [E-ARK information package validation](https://earkcsip.dilcis.eu/)."
+  contact:
+    name: Carl Wilson
+    email: carl@openpreservation.org
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
+  version: "1.0"
+servers:
+- url: http://earkip.openpreservation.org
+  description: Test server for OPF
+tags:
+- name: /validation
+  description: Request for one-off information package validation
+paths:
+  /validate:
+    post:
+      tags:
+      - /validation
+      summary: Synchronous package valdition.
+      description: Upload a package binary for validation and return validation result
+        immediately.
+      operationId: validate
+      parameters: []
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ipBody'
+      responses:
+        "200":
+          description: A validation report
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/validationReport'
+              examples:
+                profile:
+                  value: "{\n}"
+      x-openapi-router-controller: eark_ip_rest.controllers.validation_controller
+  /java_validate:
+    post:
+      tags:
+      - /validation
+      summary: Synchronous package valdition.
+      description: Upload a package binary for validation and return validation result
+        immediately.
+      operationId: java_validate
+      parameters: []
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/ipBody'
+      responses:
+        "200":
+          description: A validation report
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/validationReport'
+              examples:
+                profile:
+                  value: "{\n}"
+      x-openapi-router-controller: eark_ip_rest.controllers.validation_controller
+components:
+  schemas:
+    upload:
+      type: object
+      properties:
+        uid:
+          type: string
+          format: uuid
+          nullable: false
+        state:
+          $ref: '#/components/schemas/packageState'
+        details:
+          $ref: '#/components/schemas/packageDetails'
+      example:
+        uid: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        details:
+          checksums:
+          - value: value
+            algorithm: SHA1
+          - value: value
+            algorithm: SHA1
+          name: name
+        state: UPLOADED
+    packageState:
+      type: string
+      nullable: false
+      default: UPLOADED
+      enum:
+      - UPLOADED
+      - CHECKSUMMED
+      - VALIDATED
+    packageDetails:
+      type: object
+      properties:
+        name:
+          type: string
+          nullable: false
+        checksums:
+          type: array
+          items:
+            $ref: '#/components/schemas/checksum'
+      example:
+        checksums:
+        - value: value
+          algorithm: SHA1
+        - value: value
+          algorithm: SHA1
+        name: name
+    checksum:
+      type: object
+      properties:
+        algorithm:
+          $ref: '#/components/schemas/checksumAlg'
+        value:
+          type: string
+          nullable: false
+      example:
+        value: value
+        algorithm: SHA1
+    checksumAlg:
+      type: string
+      nullable: false
+      default: SHA1
+      enum:
+      - MD5
+      - SHA1
+      - SHA256
+      - SHA512
+    testResult:
+      type: object
+      properties:
+        ruleId:
+          type: string
+          nullable: false
+        location:
+          type: string
+          nullable: false
+        message:
+          type: string
+        severity:
+          $ref: '#/components/schemas/severity'
+      example:
+        severity: Info
+        location: location
+        ruleId: ruleId
+        message: message
+    profileDetails:
+      type: object
+      properties:
+        type:
+          $ref: '#/components/schemas/ipType'
+        name:
+          type: string
+          nullable: false
+        version:
+          type: string
+          nullable: false
+      example:
+        name: name
+        type: CSIP
+        version: version
+    ipType:
+      type: string
+      nullable: false
+      default: CSIP
+      enum:
+      - CSIP
+      - SIP
+      - DIP
+    informationPackage:
+      type: object
+      properties:
+        details:
+          $ref: '#/components/schemas/packageDetails'
+        profile:
+          $ref: '#/components/schemas/profileDetails'
+        representations:
+          $ref: '#/components/schemas/representation'
+      example:
+        profile:
+          name: name
+          type: CSIP
+          version: version
+        details:
+          checksums:
+          - value: value
+            algorithm: SHA1
+          - value: value
+            algorithm: SHA1
+          name: name
+        representations:
+          name: name
+    representation:
+      type: object
+      properties:
+        name:
+          type: string
+          nullable: false
+      example:
+        name: name
+    validationReport:
+      type: object
+      properties:
+        uid:
+          type: string
+          format: uuid
+          nullable: false
+        package:
+          $ref: '#/components/schemas/informationPackage'
+        structure:
+          $ref: '#/components/schemas/structResults'
+        metadata:
+          $ref: '#/components/schemas/metadataResults'
+      example:
+        uid: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        metadata:
+          schematronResults: null
+          schemaResults:
+            messages:
+            - null
+            - null
+            status: Unknown
+        package:
+          profile:
+            name: name
+            type: CSIP
+            version: version
+          details:
+            checksums:
+            - value: value
+              algorithm: SHA1
+            - value: value
+              algorithm: SHA1
+            name: name
+          representations:
+            name: name
+        structure:
+          messages:
+          - severity: Info
+            location: location
+            ruleId: ruleId
+            message: message
+          - severity: Info
+            location: location
+            ruleId: ruleId
+            message: message
+          status: Unknown
+    structResults:
+      type: object
+      properties:
+        status:
+          $ref: '#/components/schemas/structStatus'
+        messages:
+          type: array
+          items:
+            $ref: '#/components/schemas/testResult'
+      example:
+        messages:
+        - severity: Info
+          location: location
+          ruleId: ruleId
+          message: message
+        - severity: Info
+          location: location
+          ruleId: ruleId
+          message: message
+        status: Unknown
+    structStatus:
+      type: string
+      enum:
+      - Unknown
+      - NotWellFormed
+      - WellFormed
+    metadataResults:
+      type: object
+      properties:
+        schemaResults:
+          $ref: '#/components/schemas/metadataChecks'
+        schematronResults:
+          $ref: '#/components/schemas/metadataChecks'
+      example:
+        schematronResults: null
+        schemaResults:
+          messages:
+          - null
+          - null
+          status: Unknown
+    metadataChecks:
+      type: object
+      properties:
+        status:
+          $ref: '#/components/schemas/metadataStatus'
+        messages:
+          type: array
+          items:
+            $ref: '#/components/schemas/testResult'
+      example:
+        messages:
+        - null
+        - null
+        status: Unknown
+    metadataStatus:
+      type: string
+      enum:
+      - Unknown
+      - NotValid
+      - Valid
+    severity:
+      type: string
+      enum:
+      - Info
+      - Warn
+      - Error
+    manifestEntry:
+      type: object
+      properties:
+        path:
+          type: string
+          format: path
+          nullable: false
+        size:
+          type: integer
+          nullable: false
+          default: 0
+        checksums:
+          type: array
+          items:
+            $ref: '#/components/schemas/checksum'
+      example:
+        checksums:
+        - value: value
+          algorithm: SHA1
+        - value: value
+          algorithm: SHA1
+        path: path
+        size: 1
+    manifestSummary:
+      type: object
+      properties:
+        fileCount:
+          type: integer
+          nullable: false
+          default: 0
+        totalSize:
+          type: integer
+          nullable: false
+      example:
+        totalSize: 6
+        fileCount: 0
+    manifest:
+      type: object
+      properties:
+        source:
+          type: string
+          description: "Some class to cover different types of manifest source (archive,\
+            \ filesystem, METS)"
+          nullable: false
+        summary:
+          $ref: '#/components/schemas/manifestSummary'
+        entries:
+          type: array
+          items:
+            $ref: '#/components/schemas/manifestEntry'
+      example:
+        summary:
+          totalSize: 6
+          fileCount: 0
+        entries:
+        - checksums:
+          - value: value
+            algorithm: SHA1
+          - value: value
+            algorithm: SHA1
+          path: path
+          size: 1
+        - checksums:
+          - value: value
+            algorithm: SHA1
+          - value: value
+            algorithm: SHA1
+          path: path
+          size: 1
+        source: source
+    ipManifest:
+      type: object
+      properties:
+        uid:
+          type: string
+          format: uuid
+          nullable: false
+        manifest:
+          $ref: '#/components/schemas/manifest'
+      example:
+        uid: 046b6c7f-0b8a-43b9-b35d-6489e6daee91
+        manifest:
+          summary:
+            totalSize: 6
+            fileCount: 0
+          entries:
+          - checksums:
+            - value: value
+              algorithm: SHA1
+            - value: value
+              algorithm: SHA1
+            path: path
+            size: 1
+          - checksums:
+            - value: value
+              algorithm: SHA1
+            - value: value
+              algorithm: SHA1
+            path: path
+            size: 1
+          source: source
+    ipBody:
+      type: object
+      properties:
+        sha1:
+          type: string
+        ip_file:
+          type: string
+          format: binary

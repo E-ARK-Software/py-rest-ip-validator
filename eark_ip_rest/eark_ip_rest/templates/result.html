@@ -1,0 +1,218 @@
+{% extends "page.html" %}
+{% block title %}Home{% endblock %}
+{% block page_content %}
+<h1>E-ARK IP Online Validator</h1>
+<p>Package: {{ python_report.package.details.name }}</p>
+<p>Uploaded On: {{ timestamp }}</p>
+<h2>Validation Result: {{ compliance_badge(compliance) }}</h2>
+{{ compliance_message(compliance) }}
+<ul class="nav nav-tabs" id="myTab" role="tablist">
+  <li class="nav-item" role="presentation">
+    {% if java_summary is defined %}
+    <a class="nav-link active" id="java-tab" data-toggle="tab" href="#java" role="tab" aria-controls="java" aria-selected="true">
+      <h3>Commons-ip Validator {{ validation_badge(java_summary.result) }}
+      {% if java_summary.errors is defined %}{{ rule_summary(java_summary.errors, "errors") }}{% endif %}
+      {% if java_summary.warnings is defined %}{{ rule_summary(java_summary.warnings, "warnings") }}{% endif %}
+      {% if java_summary.infos is defined %}{{ rule_summary(java_summary.infos, "notes") }}{% endif %}</h3>
+    </a>
+    {% else %}
+    <p>Sorry, the commons-ip Validator failed with an unexpected error.</p>
+    {% endif %}
+  </li>
+  <li class="nav-item" role="presentation">
+    {% if python_summary is defined %}
+    <a class="nav-link" id="python-tab" data-toggle="tab" href="#python" role="tab" aria-controls="python" aria-selected="false">
+      <h3>PyIP Validator {{ validation_badge(python_summary.result) }}
+      {% if python_summary.errors is defined %}{{ rule_summary(python_summary.errors, "errors") }}{% endif %}
+      {% if python_summary.warnings is defined %}{{ rule_summary(python_summary.warnings, "warnings") }}{% endif %}
+      {% if python_summary.infos is defined %}{{ rule_summary(python_summary.infos, "notes") }}{% endif %}</h3>
+    </a>
+    {% else %}
+    <p>Sorry, the PyIP Validator failed with an unexpected error.</p>
+    {% endif %}
+  </li>
+</ul>
+<div class="tab-content" id="results-content">
+  <div class="tab-pane fade show active" id="java" role="tabpanel" aria-labelledby="java-tab">
+    <p>
+      An E-ARK information package validator developed by <a href="https://www.keep.pt/en/">KEEPS Solutions</a>.
+      Part of the commons-ip project, <a href="https://github.com/keeps/commons-ip">hosted on GitHub</a>.
+      If you want to report an issue or suggest an improvement please use the <a href="https://github.com/keeps/commons-ip/issues/new">GitHub issue tracker</a>.
+    </p>
+    {% if java_report is defined %}
+        {{ report_tab(java_report) }}
+    {% else %}
+        Sorry, the commons-ip Validator failed with an unexpected error.
+    {% endif %}
+  </div>
+  <div class="tab-pane fade" id="python" role="tabpanel" aria-labelledby="python-tab">
+    <p>
+      An E-ARK information package validator developed by the <a href="https://openpreservation.org/">Open Preservation Foundation</a>.
+      The Python validator project is <a href="https://github.com/E-ARK-Software/py-rest-ip-validator">hosted on GitHub</a>.
+      If you want to report an issue or suggest an improvement please use the <a href="https://github.com/E-ARK-Software/py-rest-ip-validator/issues/new">GitHub issue tracker</a>.
+    </p>
+    {% if python_report is defined %}
+        {{ report_tab(python_report) }}
+    {% else %}
+        Sorry, the PyIP Validator failed with an unexpected error.
+    {% endif %}
+  </div>
+</div>
+{% endblock page_content %}
+{% block page_script %}
+  <script src="https://unpkg.com/bootstrap-table@1.18.1/dist/bootstrap-table.min.js"></script>
+  <script src="/static/js/rest-client.js"></script>
+{% endblock page_script %}
+
+{% macro report_tab(report) %}
+{% if report.metadata is defined %}
+  <h4>Structural requirements checks {{ struct_badge(report.structure.status) }}</h4>
+  {% if report.structure.messages is defined and report.structure.messages|length > 0 %}
+    <table class="table table-striped" data-toggle="table">
+      <thead class="thead-dark">
+        <tr>
+          <th scope="col" data-field="id" data-sortable="true" data-sorter="idSorter">ID</th>
+          <th scope="col" data-field="level" data-sortable="true" data-sorter="statusSorter">Level</th>
+          <th scope="col" data-field="message" data-sortable="true">Message</th>
+        </tr>
+      </thead>
+      <tbody>
+      {{ struct_rows(report.structure.messages) }}
+      </tbody>
+    </table>
+  {% endif %}
+{% endif %}
+
+{% if report.metadata is defined %}
+  <h4>Metadata requirement Checks: {{ metadata_badge(report.metadata) }}</h4>
+  {% if (report.metadata.schema_results is defined and report.metadata.schema_results.messages|length > 0) or
+    (report.metadata.schematron_results is defined and report.metadata.schematron_results.messages|length > 0) %}
+  <table class="table table-striped" data-toggle="table">
+    <thead class="thead-dark">
+      <tr>
+        <th scope="col" data-field="id" data-sortable="true" data-sorter="idSorter">ID</th>
+        <th scope="col" data-field="level" data-sortable="true" data-sorter="statusSorter">Level</th>
+        <th scope="col" data-field="message" data-sortable="true">Location &amp; Message</th>
+      </tr>
+    </thead>
+    <tbody>
+    {% if report.metadata.schema_results is defined %}
+      {% for message in report.metadata.schema_results.messages %}
+        <tr>
+          <td><a href="https://earkcsip.dilcis.eu/#53-use-of-mets">METS XML</a></td>
+          <td>{{ severity_badge(message.severity) }}</td>
+          <td><p class="text-monospace">{{ message.location }}</p><p class="message">{{ message.message }}</p></td>
+        </tr>
+      {% endfor %}
+    {% endif %}
+    {% if report.metadata.schematron_results is defined %}
+      {{ prop_rows(report.metadata.schematron_results.messages) }}
+    {% endif %}
+    </tbody>
+  </table>
+  {% endif %}
+{% endif %}
+{% endmacro %}
+
+{% macro prop_rows(results) %}
+{% for message in results %}
+  {{ prop_row(message) }}
+{% endfor %}
+{% endmacro %}
+
+{% macro prop_row(message) %}
+  <tr>
+    <td>{{ rule_link(message.rule_id) }}</td>
+    <td>{{ severity_badge(message.severity) }}</td>
+    <td><p class="text-monospace">{{ message.location }}</p><p>{{ message.message }}</p></td>
+  </tr>
+{% endmacro -%}
+
+{% macro struct_rows(messages) %}
+{% for message in messages %}
+  {{ struct_row(message) }}
+{% endfor %}
+{% endmacro %}
+
+{% macro struct_row(message) %}
+  <tr>
+    <td>{{ rule_link(message.rule_id) }}</td>
+    <td>{{ severity_badge(message.severity) }}</td>
+    <td>{{ message.message }}</td>
+  </tr>
+{% endmacro %}
+
+{% macro compliance_badge(result) %}
+  <span class="{{ compliance_badge_class(result) }}">{{ result }}</span>
+{% endmacro %}
+
+{% macro compliance_badge_class(result) %}
+  badge badge-{% if result|lower == 'valid' %}success{% elif result|lower == 'conflicted' %}warning{% else %}danger{% endif %}
+{% endmacro %}
+
+{% macro compliance_message(result) %}
+  <p>
+  {% if result|lower == 'valid' %}
+  Your information package complies with the E-ARK specifications.
+  {% elif result|lower == 'conflicted' %}
+  The two validators have returned different results.
+  {% else %}
+  Your information package does not comply with the E-ARK specfifications.
+  You can find more information on specific errors below.
+  {% endif %}
+  </p>
+{% endmacro %}
+
+{% macro validation_badge(result) %}
+  <span class="{{ validation_badge_class(result) }}">{% if result|lower == 'valid' %}Valid{% elif result|lower == 'notvalid' %}Invalid{% else %}FAULT{% endif %}</span>
+{% endmacro %}
+
+{% macro validation_badge_class(result) %}
+  badge badge-{% if result|lower == 'valid' %}success{% elif result|lower == 'notvalid' %}danger{% else %}dangedarkr{% endif %}
+{% endmacro %}
+
+{% macro metadata_badge(result) %}
+  <span class="{{ metadata_badge_class(result) }}">{% if result is not defined or result.schema_results is not defined or result.schematron_results is not defined %}FAILED{% elif result.schema_results.status|lower == 'valid' and result.schematron_results.status|lower == 'valid' %}PASSED{% else %}FAILED{% endif %}</span>
+{% endmacro %}
+
+{% macro metadata_badge_class(result) %}
+  badge badge-{% if result is not defined or result.schema_results is not defined or result.schematron_results is not defined or result.schema_results.status|lower != 'valid' or result.schematron_results.status|lower != 'valid' %}danger{% else %}success{% endif %}
+{% endmacro %}
+
+{% macro struct_badge(status) %}
+  <span class="{{ struct_badge_class(status) }}">{% if status == 'WellFormed' %}PASSED{% else %}FAILED{% endif %}</span>
+{% endmacro %}
+
+{% macro struct_badge_class(status) %}
+  badge badge-{% if status == 'WellFormed' %}success{% else %}danger{% endif %}
+{% endmacro %}
+
+{% macro severity_badge(severity) %}
+  <span class="{{ severity_badge_class(severity) }}">{% if severity == 'Error' %}Error{% elif  severity == 'Warn' %}Warning{% else %}Note{% endif %}</span>
+{% endmacro %}
+
+{% macro severity_badge_class(severity) %}
+  badge badge-{% if severity == 'Error' %}danger{% elif  severity == 'Warn' %}warning{% else %}info{% endif %}
+{% endmacro %}
+
+{% macro rule_link(rule_id) %}
+  {% if rule_id.upper().startswith('CSIP') %}
+    <a href="https://earkcsip.dilcis.eu/#{{ rule_id }}">{{ rule_id }}</a>
+  {% elif rule_id.upper().startswith('SIP') %}
+    <a href="https://earksip.dilcis.eu/#{{ rule_id }}">{{ rule_id }}</a>
+  {% elif rule_id.upper().startswith('DIP') %}
+    <a href="https://earkdip.dilcis.eu/#{{ rule_id }}">{{ rule_id }}</a>
+  {% else %}
+    <a href="https://earkaip.dilcis.eu/#{{ rule_id }}">{{ rule_id }}</a>
+  {% endif %}
+{% endmacro %}
+
+{% macro rule_summary(count, type) %}
+  {% if count > 0 %}
+  <span class="{{ rule_badge_class(type) }}">{{ count }} {{ type }}</span>
+  {% endif %}
+{% endmacro %}
+
+{% macro rule_badge_class(type) %}
+  badge badge-{% if type == 'notes' %}info{% elif type == "warnings" %}warning{% else %}danger{% endif %}
+{% endmacro %}
