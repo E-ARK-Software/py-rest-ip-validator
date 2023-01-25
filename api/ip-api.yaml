@@ -1,0 +1,604 @@
+openapi: 3.0.3
+info:
+  title: E-ARK IP Validation API
+  description: |-
+    # REST API definition for E-ARK Information package validation
+    For further details see [E-ARK information package validation](https://earkcsip.dilcis.eu/).
+  version: 0.1.0
+  contact:
+    name: Carl Wilson
+    email: carl@openpreservation.org
+  license:
+    name: Apache 2.0
+    url : https://www.apache.org/licenses/LICENSE-2.0.html
+tags:
+  - name: /ips
+    description: Requests for E-ARK information packages
+  - name: /ips-manifests
+    description: Requests for E-ARK information package manifest details
+  - name: /profiles
+    description: Requests for E-ARK IP validation profiles
+  - name: /validations
+    description: Request for information package validation
+paths:
+  /ips:
+    summary: Package Binary operations
+    description: |-
+      # E-ARK Information Package Binary Operations
+      These REST endpoints provide operations for managing Information Package Binaries including:
+      * uploading packages
+      * listing uploaded packages
+      * deleting uploaded packages
+    get:
+      tags:
+        - /ips
+      description: Retrieve a list of package binaries uploaded to the validation service.
+      summary: Retrieve package binary details.
+      operationId: getIps
+      parameters: []
+      responses:
+        '200':
+          description: A list of package binaries
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/upload'
+              examples:
+                packageList:
+                  value: |-
+                    [
+                      {
+                          “uid”: “845872bf-cbf8-48e6-b495-ec6b4a63b607”,
+                          “name”: “IP.100.XYZ”,
+                      },
+                      {
+                          “uid”: “845872bf-cbf8-48e6-b495-ec6b4a63b609”,
+                          “name”: “IP.101.XYZ”,
+                      }
+                    ]
+    post:
+      tags:
+        - /ips
+      description: Upload a package binary for validation, returns process identifier and digest.
+      summary: Upload package binary.
+      operationId: postIp
+      parameters: []
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                sha1:
+                  type: string
+                fileName:
+                  type: string
+                  format: binary
+      responses:
+        '201':
+          description: Package successfully uploaded and queued for validation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/packageDetails'
+              examples:
+                packageDetails:
+                  value: |-
+                    {
+                      “uid”: “845872bf-cbf8-48e6-b495-ec6b4a63b607”,
+                      “name”: “IP.100.XYZ”,
+                      “checksums”: [
+                        {
+                         “algorithm”: “sha256”,
+                         “value”: “e3b0c44298fc1c149afbf4...”
+                        },
+                        {
+                         “algorithm”: “md5”,
+                         “value”: “e3b0c44298fc1c149afbf4...”
+                        }
+                      ]
+                    }
+    delete:
+      tags:
+        - /ips
+      description: Delete all information package binaries for this user.
+      summary: Delete information packages.
+      operationId: deleteIp
+      parameters: []
+      responses:
+        '202':
+          description: All information package binaries deleted for this user
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/upload'
+              examples:
+                packageUids:
+                  value: |-
+                    [
+                      {
+                          “uid”: “845872bf-cbf8-48e6-b495-ec6b4a63b607”,
+                          “name”: “IP.100.XYZ”,
+                      },
+                      {
+                          “uid”: “845872bf-cbf8-48e6-b495-ec6b4a63b609”,
+                          “name”: “IP.101.XYZ”,
+                      }
+                    ]
+  /ips/{uid}:
+    get:
+      tags:
+        - /ips
+      description: Get the properties of an information package uid.
+      summary: Get package info.
+      operationId: getIpByUid
+      parameters:
+        - in: path
+          name: uid
+          description: UUID of the package to retrieve
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Full set of package properties
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/informationPackage'
+              examples:
+                package:
+                  value: |-
+                    {
+                      “uid”: “845872bf-cbf8-48e6-b495-ec6b4a63b609”,
+                      “name”: “IP.101.XYZ”,
+                    }
+    delete:
+      tags:
+        - /ips
+      description: Delete information package binary by uid.
+      summary: Delete IP by uid.
+      operationId: deleteIpByUid
+      parameters:
+        - in: path
+          name: uid
+          description: UUID of the package to delete
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '201':
+           description: Package deleted
+           content:
+             application/json:
+               schema:
+                 $ref: '#/components/schemas/upload'
+               examples:
+                packageUid:
+                  value: |-
+                    {
+                      “uid”: “845872bf-cbf8-48e6-b495-ec6b4a63b609”,
+                      “name”: “IP.101.XYZ”,
+                    }
+  /ips/{uid}/representations:
+    get:
+      tags:
+        - /ips
+      description: Get the representations of an information package by uid.
+      summary: Get package representations.
+      operationId: getIpRepresentations
+      parameters:
+        - in: path
+          name: uid
+          description: UUID of the package to retrieve
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: List of package representations
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/representation'
+  /ips/{uid}/manifests:
+    get:
+      tags:
+        - /ips
+      description: Get any manifests for an information package.
+      summary: Get package manifests.
+      operationId: getIpManifests
+      parameters:
+        - in: path
+          name: uid
+          description: UUID of the package to retrieve
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: List of package manifests
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ipManifest'
+  /profiles:
+    get:
+      tags:
+        - /profiles
+      description: Retrieve a list of supported validation profiles
+      summary: Retrieve validation profiles.
+      operationId: getProfiles
+      parameters: []
+      responses:
+        '200':
+          description: A list of validation profiles
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/profileDetails'
+              examples:
+                profileList:
+                  value: |-
+                    [
+                      {
+                          “type": “CSIP”,
+                          “name”: “E-ARK Common Specification for Information Packages.”,
+                          "version" : "2.0.4"
+                      },
+                      {
+                          “type": “SIP”,
+                          “name”: “E-ARK Specification for Submission Information Packages.”,
+                          "version" : "2.0.4"
+                      },
+                      {
+                          “type": “DIP”,
+                          “name”: “E-ARK Specification for Dissemination Information Packages.”,
+                          "version" : "2.0.4"
+                      }
+                    ]
+  /profiles/{type}/{version}:
+    get:
+      tags:
+        - /profiles
+      description: Retrieve a validation profile by type and version
+      summary: Retrieve a validation profile.
+      operationId: getProfile
+      parameters:
+        - in: path
+          name: type
+          description: The type of profile to retrieve
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: version
+          description: The version of profile to retrieve
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: A list validation profiles
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/profileDetails'
+              examples:
+                profile:
+                  value: |-
+                    [
+                      {
+                          “type": “CSIP”,
+                          “name”: “E-ARK Common Specification for Information Packages.”,
+                          "version" : "2.0.4"
+                      }
+                    ]
+  /ips-manifests:
+    get:
+      tags:
+        - /ips-manifests
+      description: Retrieve a list of information package manifests from different sources
+      summary: Retrieve information package manifests
+      operationId: getManifests
+      responses:
+        '200':
+          description: A list of information package manifests
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ipManifest'
+                example: |-
+                  []
+  /validations:
+    get:
+      tags:
+        - /validations
+      description: Retrieves a lits of available validation results
+      summary: Retrieve valdiation results
+      operationId: getValidations
+      responses:
+        '200':
+          description: A list of validation result summaries
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/validationReport'
+              example: |-
+                []
+  /validations/{uid}:
+    get:
+      tags:
+        - /validations
+      description: Retrieve a validation result by uid
+      summary: Get validation result
+      operationId: getValidationResult
+      parameters:
+        - in: path
+          name: uid
+          description: UUID of the package to retrieve
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: A validation report
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/validationReport'
+              examples:
+                profile:
+                  value: |-
+                    {
+                    }
+  /validate:
+    post:
+      tags:
+        - /ips
+      description: Upload a package binary for validation and return validation result immediately.
+      summary: Synchronous package valdition.
+      operationId: validate
+      parameters:
+        - in: header
+          name: sha1
+          description: SHA-1 hash of package to validate
+          schema:
+            type: string
+      requestBody:
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                sha1:
+                  type: string
+                fileName:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: A validation report
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/validationReport'
+              examples:
+                profile:
+                  value: |-
+                    {
+                    }
+components:
+  schemas:
+    upload:
+      
+      type: object
+      properties:
+        uid:
+          type: string
+          nullable: false
+          format: uuid
+        state:
+          $ref: '#/components/schemas/packageState'
+        details:
+          $ref: '#/components/schemas/packageDetails'
+    packageState:
+      type: string
+      nullable: false
+      default: UPLOADED
+      enum:
+        - UPLOADED
+        - CHECKSUMMED
+        - VALIDATED
+    packageDetails:
+      type: object
+      properties:
+        name:
+          type: string
+          nullable: false
+        checksums:
+          type: array
+          items:
+            $ref: '#/components/schemas/checksum'
+    checksum:
+      type: object
+      properties:
+        algorithm:
+          $ref: '#/components/schemas/checksumAlg'
+        value:
+          type: string
+          nullable: false
+    checksumAlg:
+      type: string
+      nullable: false
+      default: SHA1
+      enum:
+        - MD5
+        - SHA1
+        - SHA256
+        - SHA512
+    testResult:
+      type: object
+      properties:
+        ruleId:
+          type: string
+          nullable: false
+        location:
+          type: string
+          nullable: false
+        message:
+          type: string
+        severity:
+          $ref: '#/components/schemas/severity'
+    profileDetails:
+      type: object
+      properties:
+        type:
+          $ref: '#/components/schemas/ipType'
+        name:
+          type: string
+          nullable: false
+        version:
+          type: string
+          nullable: false
+    ipType:
+      type: string
+      nullable: false
+      default: CSIP
+      enum:
+        - CSIP
+        - SIP
+        - DIP
+    informationPackage:
+      type: object
+      properties:
+        details:
+          $ref: '#/components/schemas/packageDetails'
+        profile:
+          $ref: '#/components/schemas/profileDetails'
+        representations:
+          $ref: '#/components/schemas/representation'
+    representation:
+      type: object
+      properties:
+        name:
+          type: string
+          nullable: false
+    validationReport:
+      type: object
+      properties:
+        uid:
+          type: string
+          format: uuid
+          nullable: false
+        package:
+          $ref: '#/components/schemas/informationPackage'
+        structure:
+          $ref: '#/components/schemas/structResults'
+        metadata:
+          $ref: '#/components/schemas/metadataResults'
+    structResults:
+      type: object
+      properties:
+        status:
+          $ref: '#/components/schemas/structStatus'
+        messages:
+          type: array
+          items:
+            $ref: '#/components/schemas/testResult'
+    structStatus:
+      type: string
+      enum:
+        - Unknown
+        - NotWellFormed
+        - WellFormed
+    metadataResults:
+      type: object
+      properties:
+        schemaResults:
+          $ref: '#/components/schemas/metadataChecks'
+        schematronResults:
+          $ref: '#/components/schemas/metadataChecks'
+    metadataChecks:
+      type: object
+      properties:
+        status:
+          $ref: '#/components/schemas/metadataStatus'
+        messages:
+          type: array
+          items:
+            $ref: '#/components/schemas/testResult'
+    metadataStatus:
+      type: string
+      enum:
+        - Unknown
+        - NotValid
+        - Valid
+    severity:
+      type: string
+      enum:
+        - Info
+        - Warn
+        - Error
+    manifestEntry:
+      type: object
+      properties:
+        path:
+          type: string
+          format: path
+          nullable: false
+        size:
+          type: integer
+          default: 0
+          nullable: false
+        checksums:
+          type: array
+          items:
+            $ref: '#/components/schemas/checksum'
+    manifestSummary:
+      type: object
+      properties:
+        fileCount:
+          type: integer
+          default: 0
+          nullable: false
+        totalSize:
+          type: integer
+          nullable: false
+    manifest:
+      type: object
+      properties:
+        source:
+          type: string
+          description: Some class to cover different types of manifest source (archive, filesystem, METS)
+          nullable: false
+        summary:
+          $ref: '#/components/schemas/manifestSummary'
+        entries:
+          type: array
+          items:
+            $ref: '#/components/schemas/manifestEntry'
+    ipManifest:
+      type: object
+      properties:
+        uid:
+          type: string
+          nullable: false
+          format: uuid
+        manifest:
+          $ref: '#/components/schemas/manifest'
