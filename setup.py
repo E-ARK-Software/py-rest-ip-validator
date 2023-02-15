@@ -87,6 +87,11 @@ setup(name='eark-ip-validation',
       extras_require=EXTRAS,
       install_requires=INSTALL_REQUIRES,
       setup_requires=SETUP_REQUIRES,
+<<<<<<< HEAD
       tests_require=TEST_DEPS,
+=======
+      tests_require=TEST_REQUIRES,
+      extras_require=EXTRAS,
+>>>>>>> master
       test_suite='tests',
      )
